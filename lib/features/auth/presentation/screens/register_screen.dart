@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kids/core/db/app_database.dart';
-import 'package:kids/core/db/parent_repository.dart';
 import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,7 +15,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+  final _auth = AuthService();
+
   bool _loading = false;
+  bool _googleLoading = false;
   bool _obscure = true;
   String? _error;
 
@@ -35,24 +37,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _error = null;
     });
     try {
-      final db = await AppDatabase.instance.database;
-      final repo = ParentRepository(db);
-      final parent = await repo.register(
+      final result = await _auth.registerWithEmail(
         email: _emailCtrl.text,
         password: _passwordCtrl.text,
       );
       if (!mounted) return;
-      if (parent == null) {
-        setState(() => _error = 'Email already registered.');
-      } else {
-        await context.read<AppState>().setParent(
-              id: parent.id,
-              email: parent.email,
-            );
-        Navigator.pop(context);
-      }
+      await context.read<AppState>().setParent(
+            id: result.parent.id,
+            email: result.parent.email,
+          );
+      if (mounted) Navigator.pop(context);
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _registerWithGoogle() async {
+    setState(() {
+      _googleLoading = true;
+      _error = null;
+    });
+    try {
+      final result = await _auth.signInWithGoogle();
+      if (!mounted) return;
+      await context.read<AppState>().setParent(
+            id: result.parent.id,
+            email: result.parent.email,
+          );
+      if (mounted) Navigator.pop(context);
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _googleLoading = false);
     }
   }
 
@@ -94,8 +112,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: 'Email',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) =>
-                          (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'Enter a valid email'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _field(
@@ -109,8 +128,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
-                      validator: (v) =>
-                          (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? 'Min 6 characters'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _field(
@@ -129,7 +149,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 12),
                 Text(
                   _error!,
-                  style: const TextStyle(color: Colors.red, fontFamily: 'arlrdbd'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontFamily: 'arlrdbd',
+                  ),
                 ),
               ],
               const SizedBox(height: 24),
@@ -137,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _loading ? null : _register,
+                  onPressed: (_loading || _googleLoading) ? null : _register,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF19335),
                     shape: RoundedRectangleBorder(
@@ -154,6 +178,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: Colors.white,
                           ),
                         ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        fontFamily: 'arlrdbd',
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed:
+                      (_loading || _googleLoading) ? null : _registerWithGoogle,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: _googleLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFF19335),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.g_mobiledata,
+                          size: 32,
+                          color: Color(0xFF4285F4),
+                        ),
+                  label: const Text(
+                    'Sign up with Google',
+                    style: TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
                 ),
               ),
             ],

@@ -10,7 +10,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'kids_app.db';
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   static const favoritesTable = 'favorites';
   static const quizScoresTable = 'quiz_scores';
@@ -61,6 +61,7 @@ class AppDatabase {
     await _createV1Tables(db);
     await _createV2Tables(db);
     await _createV3Tables(db);
+    await _migrateV4(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -72,6 +73,9 @@ class AppDatabase {
     }
     if (oldVersion < 3) {
       await _createV3Tables(db);
+    }
+    if (oldVersion < 4) {
+      await _migrateV4(db);
     }
   }
 
@@ -184,6 +188,35 @@ class AppDatabase {
         last_activity_day TEXT
       )
     ''');
+  }
+
+  Future<void> _migrateV4(Database db) async {
+    final cols = await db.rawQuery('PRAGMA table_info($parentsTable)');
+    final names = cols.map((c) => c['name'] as String).toSet();
+    if (!names.contains('firebase_uid')) {
+      await db.execute(
+        'ALTER TABLE $parentsTable ADD COLUMN firebase_uid TEXT',
+      );
+      await db.execute(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_parents_firebase_uid '
+        'ON $parentsTable(firebase_uid)',
+      );
+    }
+    if (!names.contains('provider')) {
+      await db.execute(
+        "ALTER TABLE $parentsTable ADD COLUMN provider TEXT NOT NULL DEFAULT 'password'",
+      );
+    }
+    if (!names.contains('display_name')) {
+      await db.execute(
+        'ALTER TABLE $parentsTable ADD COLUMN display_name TEXT',
+      );
+    }
+    if (!names.contains('photo_url')) {
+      await db.execute(
+        'ALTER TABLE $parentsTable ADD COLUMN photo_url TEXT',
+      );
+    }
   }
 
   Future<Database> openInMemory() async {

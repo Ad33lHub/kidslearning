@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kids/core/db/app_database.dart';
-import 'package:kids/core/db/parent_repository.dart';
+import 'package:kids/core/services/auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -12,8 +11,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
-  final _oldPassCtrl = TextEditingController();
-  final _newPassCtrl = TextEditingController();
+  final _auth = AuthService();
+
   bool _loading = false;
   bool _success = false;
   String? _error;
@@ -21,8 +20,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   void dispose() {
     _emailCtrl.dispose();
-    _oldPassCtrl.dispose();
-    _newPassCtrl.dispose();
     super.dispose();
   }
 
@@ -33,30 +30,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _error = null;
     });
     try {
-      final db = await AppDatabase.instance.database;
-      final repo = ParentRepository(db);
-      // Identify parent by email first
-      final parent = await repo.login(
-        email: _emailCtrl.text,
-        password: _oldPassCtrl.text,
-      );
+      await _auth.sendPasswordReset(_emailCtrl.text);
       if (!mounted) return;
-      if (parent == null) {
-        setState(() => _error = 'Email or current password is incorrect.');
-        return;
-      }
-      final changed = await repo.changePassword(
-        parentId: parent.id,
-        email: _emailCtrl.text,
-        oldPassword: _oldPassCtrl.text,
-        newPassword: _newPassCtrl.text,
-      );
-      if (!mounted) return;
-      if (changed) {
-        setState(() => _success = true);
-      } else {
-        setState(() => _error = 'Failed to change password. Please try again.');
-      }
+      setState(() => _success = true);
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -90,9 +68,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const Icon(Icons.check_circle, color: Color(0xFF6DB072), size: 80),
           const SizedBox(height: 16),
           const Text(
-            'Password changed successfully!',
+            'Password reset email sent!\nCheck your inbox to set a new password.',
             textAlign: TextAlign.center,
-            style: TextStyle(fontFamily: 'arlrdbd', fontSize: 20),
+            style: TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
           ),
           const SizedBox(height: 32),
           ElevatedButton(
@@ -117,7 +95,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Enter your email and current password to set a new password.',
+              'Enter your email and we will send a password reset link.',
               style: TextStyle(fontFamily: 'arlrdbd', color: Colors.black54),
             ),
             const SizedBox(height: 24),
@@ -126,32 +104,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               label: 'Email',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              validator: (v) =>
-                  (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
-            ),
-            const SizedBox(height: 16),
-            _field(
-              controller: _oldPassCtrl,
-              label: 'Current Password',
-              icon: Icons.lock_outline,
-              obscure: true,
-              validator: (v) =>
-                  (v == null || v.length < 6) ? 'Min 6 characters' : null,
-            ),
-            const SizedBox(height: 16),
-            _field(
-              controller: _newPassCtrl,
-              label: 'New Password',
-              icon: Icons.lock_reset,
-              obscure: true,
-              validator: (v) =>
-                  (v == null || v.length < 6) ? 'Min 6 characters' : null,
+              validator: (v) => (v == null || !v.contains('@'))
+                  ? 'Enter a valid email'
+                  : null,
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
               Text(
                 _error!,
-                style: const TextStyle(color: Colors.red, fontFamily: 'arlrdbd'),
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontFamily: 'arlrdbd',
+                ),
               ),
             ],
             const SizedBox(height: 24),
@@ -169,7 +133,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: _loading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
-                        'Reset Password',
+                        'Send Reset Email',
                         style: TextStyle(
                           fontFamily: 'arlrdbd',
                           fontSize: 18,

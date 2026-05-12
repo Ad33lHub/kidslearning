@@ -46,7 +46,82 @@ This downloads all packages listed in `pubspec.yaml` (Google Mobile Ads, sqflite
 
 ---
 
-## 4. Run the App
+## 4. Firebase Setup (Required for Authentication)
+
+The app uses **Firebase Auth** (email/password) and **Google Sign-In**. You must configure Firebase before the app will run.
+
+### Step 1: Install the Firebase CLI and FlutterFire CLI
+
+```bash
+# Install Firebase CLI (requires Node.js)
+npm install -g firebase-tools
+
+# Log in
+firebase login
+
+# Install FlutterFire CLI
+dart pub global activate flutterfire_cli
+```
+
+### Step 2: Create a Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click **Add project** and follow the wizard
+3. Give it a name (e.g. `kids-learning-app`)
+
+### Step 3: Configure the Flutter App
+
+From the project root, run:
+
+```bash
+flutterfire configure --project=kids-learning-app-303cc
+```
+
+Select **Android** and **iOS** when prompted. This command will:
+- Register your app with Firebase
+- Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
+- **Overwrite** `lib/firebase_options.dart` with real configuration values
+
+### Step 4: Enable Auth Providers in Firebase Console
+
+1. Open your project in [Firebase Console](https://console.firebase.google.com/)
+2. Go to **Authentication > Sign-in method**
+3. Enable **Email/Password**
+4. Enable **Google** — set a support email when prompted
+
+### Step 5: Android — Add SHA-1 Fingerprint (required for Google Sign-In)
+
+Get your debug SHA-1:
+
+```bash
+# Windows
+keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
+
+# macOS / Linux
+keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+```
+
+Then in [Firebase Console](https://console.firebase.google.com/):
+1. Go to **Project Settings > Your apps > Android app**
+2. Click **Add fingerprint** and paste the SHA-1
+3. Re-run `flutterfire configure` to update configuration files
+
+### Step 6: iOS — Additional Setup (macOS only)
+
+1. Open `ios/Runner.xcworkspace` in Xcode
+2. Under **Runner > Info > URL Types**, add a URL scheme:
+   - **URL Schemes**: your `REVERSED_CLIENT_ID` from `GoogleService-Info.plist`
+3. Set the **iOS Deployment Target** to `13.0` or higher in Xcode (General > Deployment Info)
+
+### How Auth Works in this App
+
+- **First login/signup requires internet** (Firebase Auth over network)
+- **After first successful login**, Firebase caches the user locally — the parent and children can use the app **offline**
+- **Logging out** clears the cached session — internet is needed again to re-authenticate
+
+---
+
+## 5. Run the App
 
 ### Run on a connected device or emulator
 
@@ -77,7 +152,7 @@ flutter run -d windows        # Windows desktop
 
 ---
 
-## 5. Build a Release
+## 6. Build a Release
 
 ### Android APK
 
@@ -111,7 +186,7 @@ Output: `build/windows/x64/runner/Release/`
 
 ---
 
-## 6. Run the Tests
+## 7. Run the Tests
 
 ```bash
 flutter test                  # All tests
@@ -123,7 +198,7 @@ Tests run on the Windows host using `sqflite_common_ffi`, so no emulator is need
 
 ---
 
-## 7. Static Analysis & Formatting
+## 8. Static Analysis & Formatting
 
 ```bash
 flutter analyze               # Lint and analyze
@@ -132,7 +207,7 @@ dart format lib/ test/        # Auto-format all Dart files
 
 ---
 
-## 8. Using the App
+## 9. Using the App
 
 Once launched, the app opens on the **Home** tab with a 3-tab bottom navigation:
 
@@ -155,7 +230,7 @@ Alphabet · Numbers · Colors · Shapes · Animals · Birds · Flowers · Fruits
 
 ---
 
-## 9. Before Publishing to Play Store / App Store
+## 10. Before Publishing to Play Store / App Store
 
 1. Replace the test AdMob IDs in `lib/utils/app_constrant.dart` with your real ad unit IDs.
 2. Update the app icon (`flutter pub run flutter_launcher_icons`).
@@ -170,7 +245,7 @@ Alphabet · Numbers · Colors · Shapes · Animals · Birds · Flowers · Fruits
 
 ---
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
@@ -182,7 +257,7 @@ Alphabet · Numbers · Colors · Shapes · Animals · Birds · Flowers · Fruits
 
 ---
 
-## 11. Project Structure (Quick Reference)
+## 12. Project Structure (Quick Reference)
 
 ```
 lib/

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kids/core/db/app_database.dart';
-import 'package:kids/core/db/parent_repository.dart';
 import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 import 'forgot_password_screen.dart';
@@ -18,7 +17,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _auth = AuthService();
+
   bool _loading = false;
+  bool _googleLoading = false;
   bool _obscure = true;
   String? _error;
 
@@ -36,23 +38,38 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
     try {
-      final db = await AppDatabase.instance.database;
-      final repo = ParentRepository(db);
-      final parent = await repo.login(
+      final result = await _auth.signInWithEmail(
         email: _emailCtrl.text,
         password: _passwordCtrl.text,
       );
       if (!mounted) return;
-      if (parent == null) {
-        setState(() => _error = 'Invalid email or password.');
-      } else {
-        await context.read<AppState>().setParent(
-              id: parent.id,
-              email: parent.email,
-            );
-      }
+      await context.read<AppState>().setParent(
+            id: result.parent.id,
+            email: result.parent.email,
+          );
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() {
+      _googleLoading = true;
+      _error = null;
+    });
+    try {
+      final result = await _auth.signInWithGoogle();
+      if (!mounted) return;
+      await context.read<AppState>().setParent(
+            id: result.parent.id,
+            email: result.parent.email,
+          );
+    } on AuthException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _googleLoading = false);
     }
   }
 
@@ -94,8 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Email',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) =>
-                          (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                      validator: (v) => (v == null || !v.contains('@'))
+                          ? 'Enter a valid email'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     _field(
@@ -109,8 +127,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
-                      validator: (v) =>
-                          (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? 'Min 6 characters'
+                          : null,
                     ),
                   ],
                 ),
@@ -119,7 +138,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 12),
                 Text(
                   _error!,
-                  style: const TextStyle(color: Colors.red, fontFamily: 'arlrdbd'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontFamily: 'arlrdbd',
+                  ),
                 ),
               ],
               const SizedBox(height: 8),
@@ -134,7 +157,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: const Text(
                     'Forgot Password?',
-                    style: TextStyle(fontFamily: 'arlrdbd', color: Color(0xFFF19335)),
+                    style: TextStyle(
+                      fontFamily: 'arlrdbd',
+                      color: Color(0xFFF19335),
+                    ),
                   ),
                 ),
               ),
@@ -143,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _loading ? null : _login,
+                  onPressed: (_loading || _googleLoading) ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF19335),
                     shape: RoundedRectangleBorder(
@@ -162,6 +188,61 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
               ),
+              const SizedBox(height: 16),
+              const Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                        fontFamily: 'arlrdbd',
+                        color: Colors.black45,
+                      ),
+                    ),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed:
+                      (_loading || _googleLoading) ? null : _loginWithGoogle,
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: _googleLoading
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Color(0xFFF19335),
+                          ),
+                        )
+                      : const Icon(
+                          Icons.g_mobiledata,
+                          size: 32,
+                          color: Color(0xFF4285F4),
+                        ),
+                  label: const Text(
+                    'Continue with Google',
+                    style: TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +254,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   GestureDetector(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterScreen(),
+                      ),
                     ),
                     child: const Text(
                       'Register',

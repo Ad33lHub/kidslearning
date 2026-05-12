@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 
 import '../db/app_database.dart';
 import '../db/children_repository.dart';
+import '../services/auth_service.dart';
 import '../services/session_service.dart';
 
 class AppState extends ChangeNotifier {
   final _session = SessionService();
+  final _auth = AuthService();
 
   int? _parentId;
   String? _parentEmail;
@@ -20,8 +22,27 @@ class AppState extends ChangeNotifier {
   bool get hasChild => _currentChild != null;
 
   Future<void> loadSession() async {
-    _parentId = await _session.parentId;
-    _parentEmail = await _session.parentEmail;
+    // Firebase persists the signed-in user locally, so subsequent launches
+    // can hydrate offline. We mirror that into our local parent row.
+    final result = await _auth.hydrateFromCachedUser();
+    if (result != null) {
+      _parentId = result.parent.id;
+      _parentEmail = result.parent.email;
+      await _session.saveParent(id: result.parent.id, email: result.parent.email);
+    } else {
+      _parentId = await _session.parentId;
+      _parentEmail = await _session.parentEmail;
+      // Stale local session without a Firebase user → force re-auth.
+      if (_parentId != null && _auth.currentUser == null) {
+        await _session.logout();
+        _parentId = null;
+        _parentEmail = null;
+        _currentChild = null;
+        notifyListeners();
+        return;
+      }
+    }
+
     final childData = await _session.childData;
     if (childData != null) {
       final db = await AppDatabase.instance.database;
@@ -61,6 +82,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await _auth.signOut();
     await _session.logout();
     _parentId = null;
     _parentEmail = null;

@@ -10,12 +10,20 @@ class ParentEntity {
   final String email;
   final bool hasPin;
   final DateTime createdAt;
+  final String? firebaseUid;
+  final String provider;
+  final String? displayName;
+  final String? photoUrl;
 
   const ParentEntity({
     required this.id,
     required this.email,
     required this.hasPin,
     required this.createdAt,
+    this.firebaseUid,
+    this.provider = 'password',
+    this.displayName,
+    this.photoUrl,
   });
 
   factory ParentEntity.fromRow(Map<String, Object?> row) => ParentEntity(
@@ -25,6 +33,10 @@ class ParentEntity {
         createdAt: DateTime.fromMillisecondsSinceEpoch(
           row['created_at'] as int,
         ),
+        firebaseUid: row['firebase_uid'] as String?,
+        provider: (row['provider'] as String?) ?? 'password',
+        displayName: row['display_name'] as String?,
+        photoUrl: row['photo_url'] as String?,
       );
 }
 
@@ -68,6 +80,80 @@ class ParentRepository {
     );
     if (rows.isEmpty) return null;
     return ParentEntity.fromRow(rows.first);
+  }
+
+  Future<ParentEntity> upsertFromFirebase({
+    required String firebaseUid,
+    required String email,
+    required String provider,
+    String? displayName,
+    String? photoUrl,
+  }) async {
+    final normalised = email.toLowerCase().trim();
+
+    final byUid = await _db.query(
+      AppDatabase.parentsTable,
+      where: 'firebase_uid = ?',
+      whereArgs: [firebaseUid],
+      limit: 1,
+    );
+    if (byUid.isNotEmpty) {
+      await _db.update(
+        AppDatabase.parentsTable,
+        {
+          'email': normalised,
+          'provider': provider,
+          if (displayName != null) 'display_name': displayName,
+          if (photoUrl != null) 'photo_url': photoUrl,
+        },
+        where: 'id = ?',
+        whereArgs: [byUid.first['id']],
+      );
+      return ParentEntity.fromRow({...byUid.first, 'email': normalised});
+    }
+
+    final byEmail = await _findByEmail(normalised);
+    if (byEmail != null) {
+      await _db.update(
+        AppDatabase.parentsTable,
+        {
+          'firebase_uid': firebaseUid,
+          'provider': provider,
+          if (displayName != null) 'display_name': displayName,
+          if (photoUrl != null) 'photo_url': photoUrl,
+        },
+        where: 'id = ?',
+        whereArgs: [byEmail.id],
+      );
+      final row = await _db.query(
+        AppDatabase.parentsTable,
+        where: 'id = ?',
+        whereArgs: [byEmail.id],
+        limit: 1,
+      );
+      return ParentEntity.fromRow(row.first);
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final id = await _db.insert(AppDatabase.parentsTable, {
+      'email': normalised,
+      'password_hash': '',
+      'firebase_uid': firebaseUid,
+      'provider': provider,
+      'display_name': displayName,
+      'photo_url': photoUrl,
+      'created_at': now,
+    });
+    return ParentEntity(
+      id: id,
+      email: normalised,
+      hasPin: false,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(now),
+      firebaseUid: firebaseUid,
+      provider: provider,
+      displayName: displayName,
+      photoUrl: photoUrl,
+    );
   }
 
   Future<ParentEntity?> findById(int id) async {
