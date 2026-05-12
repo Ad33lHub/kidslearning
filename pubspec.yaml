@@ -1,0 +1,41 @@
+name: kids
+description: Preschool kids learning app (Android + iOS + Windows).
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.6
+  flutter_tts: ^3.8.5
+  url_launcher: ^6.2.5
+  share_plus: ^10.1.4
+  webview_flutter: ^4.7.0
+  motion_toast: ^2.9.1
+  google_mobile_ads: ^4.0.0
+  responsive_framework: ^1.4.0
+
+  # Local persistence (SQLite)
+  sqflite: ^2.3.3
+  sqflite_common_ffi: ^2.3.3
+  path: ^1.9.0
+  path_provider: ^2.1.3
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+  fonts:
+    - family: arlrdbd
+      fonts:
+        - asset: assets/fonts/arlrdbd.ttf

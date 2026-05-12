@@ -1,0 +1,88 @@
+{
+  "_comment": "MCP server configurations for Flutter project tooling. Replace placeholders before use.",
+  "mcpServers": {
+    "flutter-tools": {
+      "_comment": "Flutter SDK tooling — run analysis, tests, and builds via MCP",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-flutter"],
+      "env": {
+        "FLUTTER_ROOT": "${FLUTTER_ROOT}",
+        "PROJECT_ROOT": "${workspaceFolder}"
+      },
+      "disabled": true,
+      "_placeholder": "Replace with actual Flutter MCP server when available"
+    },
+
+    "firebase": {
+      "_comment": "Firebase project management — Firestore, Auth, FCM via MCP",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-firebase"],
+      "env": {
+        "FIREBASE_PROJECT_ID": "YOUR_FIREBASE_PROJECT_ID",
+        "GOOGLE_APPLICATION_CREDENTIALS": "PATH_TO_SERVICE_ACCOUNT_JSON"
+      },
+      "disabled": true,
+      "_placeholder": "Set FIREBASE_PROJECT_ID and service account path"
+    },
+
+    "filesystem": {
+      "_comment": "Scoped file system access for project assets and generated files",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}/lib",
+        "${workspaceFolder}/test",
+        "${workspaceFolder}/assets",
+        "${workspaceFolder}/integration_test"
+      ],
+      "disabled": false
+    },
+
+    "dart-analyzer": {
+      "_comment": "Dart static analysis and code intelligence via MCP",
+      "command": "dart",
+      "args": ["run", "dart_mcp_server"],
+      "env": {
+        "DART_SDK": "${FLUTTER_ROOT}/bin/cache/dart-sdk"
+      },
+      "disabled": true,
+      "_placeholder": "Requires dart_mcp_server package on pub.dev"
+    },
+
+    "android-emulator": {
+      "_comment": "Android emulator control — list, launch, and interact with AVDs",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-android-emulator"],
+      "env": {
+        "ANDROID_HOME": "${ANDROID_HOME}",
+        "ANDROID_AVD_HOME": "${HOME}/.android/avd"
+      },
+      "disabled": true,
+      "_placeholder": "Set ANDROID_HOME to Android SDK path"
+    },
+
+    "testing": {
+      "_comment": "Test runner and coverage reporter",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-flutter-test"],
+      "env": {
+        "FLUTTER_ROOT": "${FLUTTER_ROOT}",
+        "COVERAGE_THRESHOLD": "70"
+      },
+      "disabled": true,
+      "_placeholder": "Replace with actual Flutter test MCP server"
+    },
+
+    "github": {
+      "_comment": "GitHub integration for PRs, issues, and branch management",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PAT"
+      },
+      "disabled": true,
+      "_placeholder": "Set GITHUB_PERSONAL_ACCESS_TOKEN in settings.local.json env"
+    }
+  }
+}
