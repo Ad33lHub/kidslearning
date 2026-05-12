@@ -1,29 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/services/screen_time_service.dart';
+import 'package:kids/features/auth/presentation/screens/login_screen.dart';
+import 'package:kids/features/parent/presentation/screens/child_selection_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import 'bottomnavigation.dart';
 import 'core/db/app_database.dart';
+import 'main_shell.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppDatabase.instance.database;
 
-  await MobileAds.instance.initialize();
-  MobileAds.instance.updateRequestConfiguration(
-    RequestConfiguration(
-      tagForChildDirectedTreatment: TagForChildDirectedTreatment.unspecified,
-      testDeviceIds: const <String>['CAC88306564BDB57C1B5E5A1C7093FF2'],
-    ),
-  );
-
   await SystemChrome.setPreferredOrientations(
     [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
   );
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppState()),
+        ChangeNotifierProvider(create: (_) => ScreenTimeService()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -47,7 +51,45 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const BottomNav(),
+      home: const AppEntryScreen(),
     );
+  }
+}
+
+class AppEntryScreen extends StatefulWidget {
+  const AppEntryScreen({super.key});
+
+  @override
+  State<AppEntryScreen> createState() => _AppEntryScreenState();
+}
+
+class _AppEntryScreenState extends State<AppEntryScreen> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(_init);
+  }
+
+  Future<void> _init() async {
+    await context.read<AppState>().loadSession();
+    if (mounted) setState(() => _loading = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFFEF7F0),
+        body: Center(child: CircularProgressIndicator(color: Color(0xFFF19335))),
+      );
+    }
+
+    final state = context.watch<AppState>();
+
+    if (!state.isLoggedIn) return const LoginScreen();
+    if (!state.hasChild) return const ChildSelectionScreen();
+    return const MainShell();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kids/Learning/Alphabet.dart';
 import 'package:kids/Learning/Animals.dart';
 import 'package:kids/Learning/Brids.dart';
@@ -10,7 +9,6 @@ import 'package:kids/Learning/Month.dart';
 import 'package:kids/Learning/Number.dart';
 import 'package:kids/Learning/Shapes.dart';
 import 'package:kids/Learning/Vegitable.dart';
-import 'package:kids/utils/admob.dart';
 
 class LetsStartLearning extends StatefulWidget{
   final int index;
@@ -312,13 +310,6 @@ class _LetsStartLearningState extends State<LetsStartLearning> {
         ],
 
       ),
-bottomNavigationBar: SizedBox(
-  height: MediaQuery.of(context).size.width *0.13,
-  width: 25,
-  child: AdWidget(
-    ad:AdmobHelper.getBannerAd()..load(),
-  ),
-),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kids/VideoLearning/ABC%20song.dart';
 import 'package:kids/VideoLearning/AnimalVideo.dart';
 import 'package:kids/VideoLearning/BirdVideo.dart';
@@ -10,7 +9,6 @@ import 'package:kids/VideoLearning/Number%20video.dart';
 import 'package:kids/VideoLearning/ShapeVideo.dart';
 import 'package:kids/VideoLearning/VegitableVideo.dart';
 import 'package:kids/VideoLearning/colorvideo.dart';
-import 'package:kids/utils/admob.dart';
 
 class VideoLearning extends StatefulWidget{
   const VideoLearning({super.key});
@@ -20,13 +18,6 @@ class VideoLearning extends StatefulWidget{
 }
 
 class _VideoLearningState extends State<VideoLearning> {
-  AdmobHelper admobHelper =  AdmobHelper();
-
-  @override
-  void initState() {
-    super.initState();
-    admobHelper.createInterad();
-  }
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -51,7 +42,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      // admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> const ABCVideo()));
                     },
                     child: Container(
@@ -78,7 +68,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>const NumberVideo()));
                     },
                     child: Container(
@@ -131,7 +120,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> const ShapeVideo()));
                     },
                     child: Container(
@@ -158,7 +146,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> const AnimalVideo()));
                     },
                     child: Container(
@@ -237,7 +224,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> const FruitVideo()));
                     },
                     child: Container(
@@ -290,7 +276,6 @@ class _VideoLearningState extends State<VideoLearning> {
                   InkWell(
                     splashColor: Colors.orange[100],
                     onTap: (){
-                      // admobHelper.showInterad();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> const VegitableVideo()));
                     },
                     child: Container(
@@ -318,13 +303,6 @@ class _VideoLearningState extends State<VideoLearning> {
               ),
            ),
         ],
-      ),
-      bottomNavigationBar: SizedBox(
-        height: MediaQuery.of(context).size.width *0.13,
-        width: 25,
-        child: AdWidget(
-          ad:AdmobHelper.getBannerAd()..load(),
-        ),
       ),
     );
   }

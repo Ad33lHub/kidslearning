@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kids/ListenGuessSongs/Alphabet.dart';
 import 'package:kids/ListenGuessSongs/Animal.dart';
 import 'package:kids/ListenGuessSongs/Brid.dart';
@@ -11,7 +10,6 @@ import 'package:kids/ListenGuessSongs/Month.dart';
 import 'package:kids/ListenGuessSongs/Number.dart';
 import 'package:kids/ListenGuessSongs/Shapes.dart';
 import 'package:kids/ListenGuessSongs/Vegitable.dart';
-import 'package:kids/utils/admob.dart';
 
 
 class ListenGuess extends StatefulWidget{
@@ -321,13 +319,6 @@ class _ListenGuessState extends State<ListenGuess> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: SizedBox(
-        height: MediaQuery.of(context).size.width *0.13,
-        width: 25,
-        child: AdWidget(
-          ad:AdmobHelper.getBannerAd()..load(),
-        ),
       ),
     );
   }

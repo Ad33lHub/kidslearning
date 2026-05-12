@@ -64,26 +64,21 @@ flutter pub run build_runner watch     # Watch mode for codegen
 
 | File | Purpose |
 |------|---------|
-| `lib/main.dart` | Entry point, SQLite + AdMob init, orientation lock |
+| `lib/main.dart` | Entry point, SQLite init, orientation lock |
 | `lib/bottomnavigation.dart` | Root scaffold with 3-tab bottom nav (Setting / Home / Privacy) |
 | `lib/homeScreen.dart` | Home grid; launches the four learning modes |
 | `lib/core/db/app_database.dart` | SQLite singleton — mobile (sqflite) + desktop/test (ffi) |
 | `lib/core/db/favorites_repository.dart` | Favorites read/write |
 | `lib/core/db/quiz_scores_repository.dart` | Persisted quiz score history |
 | `lib/utils/model.dart` | Content image path constants + list builders |
-| `lib/utils/app_constrant.dart` | AdMob IDs — currently Google **test** IDs |
-| `lib/utils/ad_helper.dart` | Platform-aware ad-unit ID getter; returns `null` on unsupported platforms (Windows/test) so the UI doesn't crash |
-| `lib/utils/admob.dart` | Banner + interstitial ad lifecycle manager |
 
 ## Critical Constraints
 
 - App is locked to portrait orientation — never change `SystemChrome.setPreferredOrientations`.
 - Custom font `arlrdbd` is required on all user-visible `Text` widgets.
 - All content images live in `assets/images/` — add new assets to `pubspec.yaml`.
-- AdMob IDs in `app_constrant.dart` are **Google test IDs** — swap before Play Store submission.
 - `flutter_tts` pitch is set to `10.0` — intentionally high for child-friendly audio.
 - Several filenames have intentional typos (`Brids`, `Vegitable`, `Quize`) — preserve these to avoid broken imports.
-- `AdHelper.*AdUnitId` getters return `String?`. When `null` (desktop, tests) ad loading must be a no-op — never throw. Don't reintroduce the old `UnsupportedError`-on-Windows behavior; it crashed widget tests that mount `HomeScreen`.
 - `flutter test` runs on Windows host via `sqflite_common_ffi` — `AppDatabase` already handles this. Don't add platform guards in tests.
 
 ## State Management

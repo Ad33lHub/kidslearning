@@ -1,7 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kids/Quiz/ABCQuize.dart';
 import 'package:kids/Quiz/AnimalQuize.dart';
 import 'package:kids/Quiz/BirdQuize.dart';
@@ -12,7 +11,6 @@ import 'package:kids/Quiz/MonthQuize.dart';
 import 'package:kids/Quiz/NumberQuiz.dart';
 import 'package:kids/Quiz/ShapeQuiz.dart';
 import 'package:kids/Quiz/VegitableQuiz.dart';
-import 'package:kids/utils/admob.dart';
 
 
 class LookAndChooes extends StatelessWidget{
@@ -311,13 +309,6 @@ class LookAndChooes extends StatelessWidget{
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: SizedBox(
-        height: MediaQuery.of(context).size.width *0.13,
-        width: 25,
-        child: AdWidget(
-          ad:AdmobHelper.getBannerAd()..load(),
-        ),
       ),
     );
   }

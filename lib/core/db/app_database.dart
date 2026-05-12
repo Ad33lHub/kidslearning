@@ -5,20 +5,20 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-/// Single SQLite database used by the app for favorites + quiz scores.
-///
-/// On Android/iOS this uses the default sqflite engine. On Windows/Linux
-/// (and inside `flutter test`) it uses the sqflite_common_ffi FFI engine,
-/// which is initialized lazily the first time [database] is read.
 class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'kids_app.db';
-  static const _dbVersion = 1;
+  static const _dbVersion = 2;
 
   static const favoritesTable = 'favorites';
   static const quizScoresTable = 'quiz_scores';
+  static const parentsTable = 'parents';
+  static const childrenTable = 'children';
+  static const learningSessionsTable = 'learning_sessions';
+  static const dailyUsageTable = 'daily_usage';
+  static const screenTimeLimitsTable = 'screen_time_limits';
 
   Database? _db;
   bool _ffiInitialized = false;
@@ -36,6 +36,7 @@ class AppDatabase {
       options: OpenDatabaseOptions(
         version: _dbVersion,
         onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
       ),
     );
   }
@@ -53,6 +54,20 @@ class AppDatabase {
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    await _createV1Tables(db);
+    await _createV2Tables(db);
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await _createV2Tables(db);
+      await db.execute(
+        'ALTER TABLE $quizScoresTable ADD COLUMN child_id INTEGER',
+      );
+    }
+  }
+
+  Future<void> _createV1Tables(Database db) async {
     await db.execute('''
       CREATE TABLE $favoritesTable (
         id        INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,12 +83,60 @@ class AppDatabase {
         category     TEXT    NOT NULL,
         score        INTEGER NOT NULL,
         total        INTEGER NOT NULL,
-        completed_at INTEGER NOT NULL
+        completed_at INTEGER NOT NULL,
+        child_id     INTEGER
       )
     ''');
   }
 
-  /// Open an in-memory database for tests. Always uses the FFI factory.
+  Future<void> _createV2Tables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $parentsTable (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        email         TEXT    NOT NULL UNIQUE,
+        password_hash TEXT    NOT NULL,
+        pin_hash      TEXT,
+        created_at    INTEGER NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $childrenTable (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        parent_id    INTEGER NOT NULL,
+        name         TEXT    NOT NULL,
+        avatar_index INTEGER NOT NULL DEFAULT 0,
+        level        TEXT    NOT NULL DEFAULT 'easy',
+        created_at   INTEGER NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $learningSessionsTable (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id         INTEGER NOT NULL,
+        module           TEXT    NOT NULL,
+        started_at       INTEGER NOT NULL,
+        ended_at         INTEGER,
+        duration_seconds INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $dailyUsageTable (
+        id           INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id     INTEGER NOT NULL,
+        date_key     TEXT    NOT NULL,
+        used_seconds INTEGER NOT NULL DEFAULT 0,
+        UNIQUE(child_id, date_key)
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $screenTimeLimitsTable (
+        id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id            INTEGER NOT NULL UNIQUE,
+        daily_limit_seconds INTEGER NOT NULL DEFAULT 3600
+      )
+    ''');
+  }
+
   Future<Database> openInMemory() async {
     if (!_ffiInitialized) {
       sqfliteFfiInit();
@@ -88,7 +151,6 @@ class AppDatabase {
     );
   }
 
-  /// Test-only hook so callers can inject an in-memory database.
   void debugOverrideForTest(Database db) {
     _db = db;
   }

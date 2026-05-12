@@ -33,7 +33,7 @@ This is a Flutter preschool kids learning app targeting Android, iOS, and Window
 
 ### Navigation
 
-- `lib/main.dart` — entry point; initializes Google Mobile Ads, then mounts `BottomNav`
+- `lib/main.dart` — entry point; initializes SQLite, then mounts `BottomNav`
 - `lib/bottomnavigation.dart` — 3-tab bottom nav: Settings (index 0), Home (index 1, default), Privacy Policy (index 2)
 - `lib/homeScreen.dart` — home grid that launches the four learning modes
 
@@ -53,14 +53,6 @@ Individual item detail/pronunciation screens live in `lib/Alphabetssound/`.
 ### Data Layer
 
 `lib/utils/model.dart` is the single source of truth for all content: it exports image path constants (e.g., `A`, `B`, `Animal0`) and list-builder functions (e.g., `KidsList1()`, `alphabetvideo1()`) that return `List<Numbermodel>` used by every screen. All images are bundled under `assets/images/`.
-
-### Ads
-
-`lib/utils/admob.dart` — `AdmobHelper` manages interstitial ads (load, show, reload on dismiss). `AdmobHelper.getBannerAd()` is a static factory used inline in screen `bottomNavigationBar` widgets.
-
-`lib/utils/app_constrant.dart` — holds ad unit IDs. **Currently set to Google test IDs** — replace before production release.
-
-`lib/utils/ad_helper.dart` — platform-aware ad unit ID selector.
 
 ### Custom Font
 
