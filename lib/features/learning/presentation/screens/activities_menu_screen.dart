@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'animal_sound_screen.dart';
 import 'color_matching_screen.dart';
 import 'counting_activity_screen.dart';
+import 'drag_drop_quiz_screen.dart';
 import 'letter_matching_screen.dart';
 import 'letter_tracing_screen.dart';
 import 'number_tracing_screen.dart';
@@ -21,6 +22,7 @@ class ActivitiesMenuScreen extends StatelessWidget {
     _ActivityItem('Shape Matching', '🔷', Color(0xFFFFF9F4)),
     _ActivityItem('Animal Sounds', '🦁', Color(0xFFEBE8FD)),
     _ActivityItem('Rhymes', '🎵', Color(0xFFFEF9E4)),
+    _ActivityItem('Drag & Drop', '🧲', Color(0xFFFFE4E4)),
   ];
 
   void _navigate(BuildContext context, int index) {
@@ -49,6 +51,9 @@ class ActivitiesMenuScreen extends StatelessWidget {
         break;
       case 7:
         screen = const RhymesScreen();
+        break;
+      case 8:
+        screen = const DragDropQuizScreen();
         break;
       default:
         return;

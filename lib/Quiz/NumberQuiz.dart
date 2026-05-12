@@ -125,7 +125,7 @@ class _NumberquizState extends State<Numberquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== numberquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'numbers', total: numberquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

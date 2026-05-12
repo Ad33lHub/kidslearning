@@ -10,7 +10,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'kids_app.db';
-  static const _dbVersion = 2;
+  static const _dbVersion = 3;
 
   static const favoritesTable = 'favorites';
   static const quizScoresTable = 'quiz_scores';
@@ -19,6 +19,10 @@ class AppDatabase {
   static const learningSessionsTable = 'learning_sessions';
   static const dailyUsageTable = 'daily_usage';
   static const screenTimeLimitsTable = 'screen_time_limits';
+  static const rewardsTable = 'rewards';
+  static const badgesTable = 'badges';
+  static const moduleProgressTable = 'module_progress';
+  static const streaksTable = 'streaks';
 
   Database? _db;
   bool _ffiInitialized = false;
@@ -56,6 +60,7 @@ class AppDatabase {
   Future<void> _onCreate(Database db, int version) async {
     await _createV1Tables(db);
     await _createV2Tables(db);
+    await _createV3Tables(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -64,6 +69,9 @@ class AppDatabase {
       await db.execute(
         'ALTER TABLE $quizScoresTable ADD COLUMN child_id INTEGER',
       );
+    }
+    if (oldVersion < 3) {
+      await _createV3Tables(db);
     }
   }
 
@@ -133,6 +141,47 @@ class AppDatabase {
         id                  INTEGER PRIMARY KEY AUTOINCREMENT,
         child_id            INTEGER NOT NULL UNIQUE,
         daily_limit_seconds INTEGER NOT NULL DEFAULT 3600
+      )
+    ''');
+  }
+
+  Future<void> _createV3Tables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $rewardsTable (
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id  INTEGER NOT NULL UNIQUE,
+        stars     INTEGER NOT NULL DEFAULT 0,
+        coins     INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $badgesTable (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id   INTEGER NOT NULL,
+        badge_key  TEXT    NOT NULL,
+        earned_at  INTEGER NOT NULL,
+        UNIQUE(child_id, badge_key)
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $moduleProgressTable (
+        id               INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id         INTEGER NOT NULL,
+        module           TEXT    NOT NULL,
+        completed_items  INTEGER NOT NULL DEFAULT 0,
+        total_items      INTEGER NOT NULL DEFAULT 0,
+        best_score       INTEGER NOT NULL DEFAULT 0,
+        updated_at       INTEGER NOT NULL,
+        UNIQUE(child_id, module)
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $streaksTable (
+        id                INTEGER PRIMARY KEY AUTOINCREMENT,
+        child_id          INTEGER NOT NULL UNIQUE,
+        current_streak    INTEGER NOT NULL DEFAULT 0,
+        longest_streak    INTEGER NOT NULL DEFAULT 0,
+        last_activity_day TEXT
       )
     ''');
   }

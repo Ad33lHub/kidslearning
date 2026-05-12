@@ -124,7 +124,7 @@ class _BirdquizState extends State<Birdquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== birdquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'birds', total: birdquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

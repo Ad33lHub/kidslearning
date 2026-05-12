@@ -125,7 +125,7 @@ class _FlowerquizState extends State<Flowerquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== flowerquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'flowers', total: flowerquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

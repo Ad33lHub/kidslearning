@@ -125,7 +125,7 @@ class _AnimalQuizState extends State<AnimalQuiz> {
                                   ),
                                   onPressed: isPressed ? index + 1== animalquestion.length
                                       ?(){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'animals', total: animalquestion.length)));
                                   }
                                       :(){
                                     controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

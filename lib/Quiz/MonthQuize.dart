@@ -127,7 +127,7 @@ class _MonthquizState extends State<Monthquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== monthquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'months', total: monthquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

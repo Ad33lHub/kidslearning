@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kids/Pages/LetsStartLearning.dart';
 import 'package:kids/core/providers/app_state.dart';
 import 'package:kids/features/learning/presentation/screens/activities_menu_screen.dart';
+import 'package:kids/features/learning/presentation/screens/rewards_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'Pages/LookAndChooes.dart';
@@ -176,6 +177,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const ActivitiesMenuScreen(),
+                        ),
+                      ),
+                    ),
+                    _modeCard(
+                      emoji: '🏆',
+                      label: 'My Rewards',
+                      color: const Color(0xFFFEF9E4),
+                      textColor: const Color(0xFFF2CC2B),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RewardsScreen(),
                         ),
                       ),
                     ),

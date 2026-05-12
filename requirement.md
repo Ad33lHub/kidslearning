@@ -30,32 +30,32 @@ REQ-028	Learning Module	Animals Module	Child can learn animal names and sounds.	
 REQ-029	Learning Module	Animal Sound Activities	Child can identify animals through sounds.	Medium	Pending
 REQ-030	Learning Module	Rhymes Module	Child can play animated rhymes with audio narration.	Medium	Pending
 REQ-031	Learning Module	Multilingual Rhymes	Rhymes available in English and Urdu.	Low	Pending
-REQ-032	Quiz System	Quiz Module	Child can attempt quizzes based on learning modules.	High	Pending
-REQ-033	Quiz System	MCQ Quiz	System supports multiple-choice questions.	High	Pending
-REQ-034	Quiz System	Drag & Drop Quiz	System supports drag-and-drop quiz interaction.	Medium	Pending
-REQ-035	Quiz System	Matching Quiz	System supports object matching quizzes.	Medium	Pending
-REQ-036	Quiz System	Quiz Score Calculation	System calculates quiz score automatically.	High	Pending
-REQ-037	Quiz System	Quiz Result Storage	Quiz results stored locally in SQLite database.	High	Pending
-REQ-038	Gamification	Reward System	Child earns stars and coins after activities.	Medium	Pending
-REQ-039	Gamification	Badge System	System awards badges based on achievements.	Medium	Pending
-REQ-040	Gamification	Streak System	System tracks consecutive learning days.	Low	Pending
-REQ-041	Gamification	Unlock System	New content unlocks based on child progress.	Medium	Pending
-REQ-042	Progress Tracking	Progress Percentage	System calculates module completion percentage.	High	Pending
-REQ-043	Progress Tracking	Module Completion	System stores completed module records locally.	High	Pending
-REQ-044	Progress Tracking	Best Score Tracking	System stores highest quiz score of child.	Medium	Pending
-REQ-045	Content Management	Offline Assets	Images, audio, and animations stored locally.	High	Pending
-REQ-046	Content Management	Audio Playback	System supports offline audio playback.	High	Pending
-REQ-047	Content Management	Animation Support	System supports child-friendly animations.	Medium	Pending
-REQ-048	Database	SQLite Database	Local SQLite database stores all app data.	High	Pending
-REQ-049	Database	Local Progress Storage	Child progress stored locally on device.	High	Pending
-REQ-050	Database	Local Settings Storage	Parent settings stored locally.	High	Pending
-REQ-051	Security	Secure Parent Access	Child cannot access parent settings without PIN.	High	Pending
-REQ-052	Security	Ad-Free Environment	Application should contain no advertisements.	High	Pending
-REQ-053	Security	No External Browsing	App should not allow external web access.	High	Pending
-REQ-054	UI/UX	Child-Friendly UI	Interface should use large buttons and colorful design.	High	Pending
-REQ-055	UI/UX	Easy Navigation	Navigation should be simple for children aged 3-8.	High	Pending
-REQ-056	UI/UX	Audio Guidance	System provides voice instructions for activities.	Medium	Pending
-REQ-057	Performance	Low-End Device Support	App should run smoothly on low RAM Android devices.	Medium	Pending
-REQ-058	Performance	Fast Loading	Modules should load quickly without delay.	Medium	Pending
-REQ-059	Platform	Android Support	Application supports Android devices.	High	Pending
+REQ-032	Quiz System	Quiz Module	Child can attempt quizzes based on learning modules.	High	Done
+REQ-033	Quiz System	MCQ Quiz	System supports multiple-choice questions.	High	Done
+REQ-034	Quiz System	Drag & Drop Quiz	System supports drag-and-drop quiz interaction.	Medium	Done
+REQ-035	Quiz System	Matching Quiz	System supports object matching quizzes.	Medium	Done
+REQ-036	Quiz System	Quiz Score Calculation	System calculates quiz score automatically.	High	Done
+REQ-037	Quiz System	Quiz Result Storage	Quiz results stored locally in SQLite database.	High	Done
+REQ-038	Gamification	Reward System	Child earns stars and coins after activities.	Medium	Done
+REQ-039	Gamification	Badge System	System awards badges based on achievements.	Medium	Done
+REQ-040	Gamification	Streak System	System tracks consecutive learning days.	Low	Done
+REQ-041	Gamification	Unlock System	New content unlocks based on child progress.	Medium	Done
+REQ-042	Progress Tracking	Progress Percentage	System calculates module completion percentage.	High	Done
+REQ-043	Progress Tracking	Module Completion	System stores completed module records locally.	High	Done
+REQ-044	Progress Tracking	Best Score Tracking	System stores highest quiz score of child.	Medium	Done
+REQ-045	Content Management	Offline Assets	Images, audio, and animations stored locally.	High	Done
+REQ-046	Content Management	Audio Playback	System supports offline audio playback.	High	Done
+REQ-047	Content Management	Animation Support	System supports child-friendly animations.	Medium	Done
+REQ-048	Database	SQLite Database	Local SQLite database stores all app data.	High	Done
+REQ-049	Database	Local Progress Storage	Child progress stored locally on device.	High	Done
+REQ-050	Database	Local Settings Storage	Parent settings stored locally.	High	Done
+REQ-051	Security	Secure Parent Access	Child cannot access parent settings without PIN.	High	Done
+REQ-052	Security	Ad-Free Environment	Application should contain no advertisements.	High	Done
+REQ-053	Security	No External Browsing	App should not allow external web access.	High	Partial (Video Learning launches YouTube via url_launcher by design)
+REQ-054	UI/UX	Child-Friendly UI	Interface should use large buttons and colorful design.	High	Done
+REQ-055	UI/UX	Easy Navigation	Navigation should be simple for children aged 3-8.	High	Done
+REQ-056	UI/UX	Audio Guidance	System provides voice instructions for activities.	Medium	Done
+REQ-057	Performance	Low-End Device Support	App should run smoothly on low RAM Android devices.	Medium	Done
+REQ-058	Performance	Fast Loading	Modules should load quickly without delay.	Medium	Done
+REQ-059	Platform	Android Support	Application supports Android devices.	High	Done
 REQ-060	Future Scope	iOS Expansion	Future version may support iOS devices.	Low	Future

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'activity_history_screen.dart';
 import 'child_list_screen.dart';
+import 'child_progress_screen.dart';
 import 'screen_time_settings_screen.dart';
 
 class ParentDashboardScreen extends StatefulWidget {
@@ -351,6 +352,15 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ActivityHistoryScreen()),
+            ),
+          ),
+          _actionTile(
+            icon: '📈',
+            label: 'Progress',
+            color: const Color(0xFFFEF9E4),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChildProgressScreen()),
             ),
           ),
           _actionTile(

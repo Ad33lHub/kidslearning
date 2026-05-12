@@ -125,7 +125,7 @@ class _ColorquizState extends State<Colorquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== colorquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'colors', total: colorquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

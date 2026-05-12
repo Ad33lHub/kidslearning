@@ -125,7 +125,7 @@ class _ShapequizState extends State<Shapequiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== shapequestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'shapes', total: shapequestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

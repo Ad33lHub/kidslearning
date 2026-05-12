@@ -124,7 +124,7 @@ class _FruitquizState extends State<Fruitquiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== fruitquestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'fruits', total: fruitquestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);

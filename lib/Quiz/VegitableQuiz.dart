@@ -126,7 +126,7 @@ class _VegitablequizState extends State<Vegitablequiz> {
                                 ),
                                 onPressed: isPressed ? index + 1== vegitablequestion.length
                                     ?(){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultSrceen(score, category: 'vegetables', total: vegitablequestion.length)));
                                 }
                                     :(){
                                   controller.nextPage(duration: const Duration(microseconds: 500), curve: Curves.linear);
