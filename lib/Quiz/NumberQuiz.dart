@@ -8,7 +8,7 @@ class Numberquiz extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final images = NumberList();
+    final images = NumberQuiz();
     final qs = List<CosmicQuizQuestion>.generate(numberquestion.length, (i) {
       final q = numberquestion[i];
       return CosmicQuizQuestion(

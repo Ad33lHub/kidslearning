@@ -9,6 +9,9 @@ import 'package:kids/core/services/audio_guidance_service.dart';
 import 'package:kids/core/services/background_music_service.dart';
 import 'package:kids/features/learning/presentation/screens/activities_menu_screen.dart';
 import 'package:kids/features/learning/presentation/screens/rewards_screen.dart';
+import 'package:kids/core/services/screen_time_service.dart';
+import 'package:kids/features/learning/presentation/screens/child_settings_screen.dart';
+import 'package:kids/features/learning/presentation/screens/video_learning_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'Pages/LookAndChooes.dart';
@@ -246,6 +249,18 @@ class _HomeScreenState extends State<HomeScreen>
           MaterialPageRoute(builder: (_) => const RewardsScreen()),
         ),
       ),
+      _ModeData(
+        emoji: '📺',
+        label: 'Video\nLearning',
+        accent: const Color(0xFFFFD1A4),
+        glow: const Color(0xFFFF8A00),
+        emojiCorner: '🎬',
+        spoken: 'Video Learning',
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const VideoLearningScreen()),
+        ),
+      ),
     ];
 
     return PopScope(
@@ -367,108 +382,153 @@ class _CosmicHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
+    final child = appState.currentChild;
+    final stars = appState.stars;
+    final coins = appState.coins;
+    final screenTime = context.watch<ScreenTimeService>();
+
+    final List<String> avatars = [
+      '🐙', '🦁', '🐼', '🐯', '🦊', '🐻', '🐸', '🦄', '🐱', '🐶', '🦉', '🐧'
+    ];
+    final avatar = avatars[child?.avatarIndex ?? 0];
+    final ageText = child?.age != null ? 'Age ${child!.age} • ' : '';
+    final levelText = child?.level.toUpperCase() ?? 'EXPLORER';
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(28),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withOpacity(0.08),
-                  Colors.white.withOpacity(0.02),
-                ],
-              ),
-              border: Border.all(color: _cosmicOutline, width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: _cosmicSecondaryDeep.withOpacity(0.25),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _GlassPill(
-                      icon: Icons.child_care_rounded,
-                      iconColor: _cosmicSecondary,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // Avatar with float animation
+              AnimatedBuilder(
+                animation: floatCtrl,
+                builder: (_, child) {
+                  final dy = math.sin(floatCtrl.value * math.pi * 2) * 3;
+                  return Transform.translate(
+                    offset: Offset(0, dy),
+                    child: child,
+                  );
+                },
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2A1A4D), Color(0xFF131315)],
                     ),
-                    _GlassPill(
-                      label: 'Level up!',
-                      icon: Icons.bolt_rounded,
-                      iconColor: _cosmicTertiary,
+                    border: Border.all(color: _cosmicOutline, width: 1.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    avatar,
+                    style: const TextStyle(fontSize: 32),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Name and Age/Level
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      childName.toUpperCase(),
+                      style: const TextStyle(
+                        fontFamily: 'arlrdbd',
+                        fontSize: 20,
+                        color: Colors.white,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    Text(
+                      '$ageText$levelText',
+                      style: const TextStyle(
+                        fontFamily: 'arlrdbd',
+                        fontSize: 12,
+                        color: Color(0xFFC7C5CE),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                AnimatedBuilder(
-                  animation: floatCtrl,
-                  builder: (_, child) {
-                    final dy = math.sin(floatCtrl.value * math.pi * 2) * 6;
-                    return Transform.translate(
-                      offset: Offset(0, dy),
-                      child: child,
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: _cosmicSecondary.withOpacity(0.45),
-                          blurRadius: 28,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 60,
-                    ),
+              ),
+              // Stars
+              _GlassPill(
+                label: '$stars',
+                icon: Icons.star_rounded,
+                iconColor: Colors.amber,
+              ),
+              const SizedBox(width: 8),
+              // Coins
+              _GlassPill(
+                label: '$coins',
+                icon: Icons.monetization_on_rounded,
+                iconColor: const Color(0xFFFFD700),
+              ),
+              const SizedBox(width: 8),
+              // Settings Gear
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChildSettingsScreen()),
+                ),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: _cosmicOutline),
+                  ),
+                  child: const Icon(
+                    Icons.settings_rounded,
+                    color: Color(0xFFC1C5E3),
+                    size: 20,
                   ),
                 ),
-                const SizedBox(height: 10),
-                ShaderMask(
-                  shaderCallback: (r) => const LinearGradient(
-                    colors: [
-                      Color(0xFFEBB2FF),
-                      Color(0xFFC1C5E3),
-                      Color(0xFF7FE7D4),
-                    ],
-                  ).createShader(r),
-                  child: Text(
-                    'Hello, $childName! 🌟',
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Screen Time Progress Bar
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Screen Time',
+                    style: TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 12,
+                      color: Color(0xFFC7C5CE),
+                    ),
+                  ),
+                  Text(
+                    '${screenTime.remainingFormatted} left',
                     style: const TextStyle(
                       fontFamily: 'arlrdbd',
-                      fontSize: 24,
-                      color: Colors.white,
-                      height: 1.1,
+                      fontSize: 12,
+                      color: Color(0xFF7FE7D4),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: 1.0 - screenTime.progress, // Showing remaining time as green
+                  backgroundColor: Colors.white.withOpacity(0.1),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00E676)),
+                  minHeight: 8,
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'What shall we explore today?',
-                  style: TextStyle(
-                    fontFamily: 'arlrdbd',
-                    fontSize: 14,
-                    color: Color(0xFFC7C5CE),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
+        ],
       ),
     );
   }

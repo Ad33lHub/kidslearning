@@ -149,164 +149,156 @@ class _CountingActivityScreenState extends State<CountingActivityScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Text(
-                          'How many do you see?',
-                          style: TextStyle(
-                            fontFamily: 'arlrdbd',
-                            fontSize: 22,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'How many do you see?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'arlrdbd',
+                        fontSize: 24,
+                        color: AppColors.textPrimary,
                       ),
-                      // Emoji display area — flexible, won't overflow
-                      Flexible(
-                        flex: 3,
-                        child: Center(
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 24),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.gradientNumbers.last
-                                      .withOpacity(0.20),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
+                    ),
+                    const SizedBox(height: 24),
+                    // Emoji display area
+                    Center(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.gradientNumbers.last
+                                  .withOpacity(0.15),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                            child: Wrap(
-                              alignment: WrapAlignment.center,
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: List.generate(
-                                _count,
-                                (_) => Text(
-                                  emoji,
-                                  style: TextStyle(
-                                    fontSize:
-                                        _count <= 5 ? 56 : _count <= 8 ? 44 : 36,
-                                  ),
-                                ),
+                          ],
+                        ),
+                        child: Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: List.generate(
+                            _count,
+                            (_) => Text(
+                              emoji,
+                              style: TextStyle(
+                                fontSize:
+                                    _count <= 5 ? 64 : _count <= 8 ? 52 : 42,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      // Options grid — adaptive aspect ratio
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: constraints.maxWidth > 400 ? 2.8 : 2.2,
-                          children: _options.map((opt) {
-                            Color bgColor = Colors.white;
-                            Color borderColor = AppColors.primaryLight;
-                            if (_selected != null) {
-                              if (opt == _count) {
-                                bgColor = AppColors.success;
-                                borderColor = AppColors.success;
-                              } else if (opt == _selected) {
-                                bgColor = AppColors.error;
-                                borderColor = AppColors.error;
-                              }
+                    ),
+                    const SizedBox(height: 40),
+                    // Options grid
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        mainAxisSpacing: 16,
+                        crossAxisSpacing: 16,
+                        childAspectRatio: constraints.maxWidth > 400 ? 2.5 : 2.0,
+                        children: _options.map((opt) {
+                          Color bgColor = Colors.white;
+                          Color borderColor = AppColors.primaryLight.withOpacity(0.5);
+                          if (_selected != null) {
+                            if (opt == _count) {
+                              bgColor = AppColors.success;
+                              borderColor = AppColors.success;
+                            } else if (opt == _selected) {
+                              bgColor = AppColors.error;
+                              borderColor = AppColors.error;
                             }
-                            return GestureDetector(
-                              onTap: () => _onSelect(opt),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: bgColor,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: borderColor, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: borderColor.withOpacity(0.20),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
+                          }
+                          return GestureDetector(
+                            onTap: () => _onSelect(opt),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              decoration: BoxDecoration(
+                                color: bgColor,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: borderColor, width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: borderColor.withOpacity(0.20),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$opt',
+                                  style: TextStyle(
+                                    fontFamily: 'arlrdbd',
+                                    fontSize: 32,
+                                    color: _selected != null &&
+                                            (opt == _count || opt == _selected)
+                                        ? Colors.white
+                                        : AppColors.textPrimary,
+                                  ),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    '$opt',
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    if (canFinish)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 60,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              elevation: 8,
+                            ),
+                            onPressed: _saving ? null : _finish,
+                            child: _saving
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  )
+                                : const Text(
+                                    '🏁  I\'m Done!',
                                     style: TextStyle(
                                       fontFamily: 'arlrdbd',
-                                      fontSize: 28,
-                                      color: _selected != null &&
-                                              (opt == _count || opt == _selected)
-                                          ? Colors.white
-                                          : AppColors.textPrimary,
+                                      color: Colors.white,
+                                      fontSize: 22,
                                     ),
                                   ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      if (canFinish)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 54,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation: 6,
-                              ),
-                              onPressed: _saving ? null : _finish,
-                              child: _saving
-                                  ? const CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
-                                    )
-                                  : const Text(
-                                      '🏁  I\'m Done!',
-                                      style: TextStyle(
-                                        fontFamily: 'arlrdbd',
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                            ),
-                          ),
+                    if (!canFinish)
+                      Text(
+                        '${_minQuestionsBeforeDone - _total} more to unlock finish',
+                        style: const TextStyle(
+                          fontFamily: 'arlrdbd',
+                          color: AppColors.textSecondary,
+                          fontSize: 14,
                         ),
-                      if (!canFinish)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Text(
-                            '${_minQuestionsBeforeDone - _total} more to unlock finish',
-                            style: const TextStyle(
-                              fontFamily: 'arlrdbd',
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                      ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             );

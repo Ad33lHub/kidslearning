@@ -165,102 +165,108 @@ class _DragDropQuizScreenState extends State<DragDropQuizScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Responsive image height — 35% of available height, capped
             final imageHeight =
                 (constraints.maxHeight * 0.35).clamp(150.0, 260.0);
 
             return SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight - 32, // minus padding
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      Text(
-                        q.prompt,
-                        textAlign: TextAlign.center,
-                        style:
-                            const TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
-                      ),
-                      const SizedBox(height: 16),
-                      DragTarget<String>(
-                        onWillAcceptWithDetails: (_) => _dropped == null,
-                        onAcceptWithDetails: (details) =>
-                            _onAccept(details.data),
-                        builder: (_, __, ___) => Container(
-                          height: imageHeight,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: _dropped == null
-                                ? Colors.white
-                                : (_correct
-                                    ? const Color(0xFFE4F2E6)
-                                    : const Color(0xFFFFE4E4)),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: const Color(0xFFF19335),
-                              width: 2,
-                            ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
+                child: Column(
+                  children: [
+                    Text(
+                      q.prompt,
+                      textAlign: TextAlign.center,
+                      style:
+                          const TextStyle(fontFamily: 'arlrdbd', fontSize: 22),
+                    ),
+                    const SizedBox(height: 24),
+                    DragTarget<String>(
+                      onWillAcceptWithDetails: (_) => _dropped == null,
+                      onAcceptWithDetails: (details) =>
+                          _onAccept(details.data),
+                      builder: (_, __, ___) => Container(
+                        height: imageHeight,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: _dropped == null
+                              ? Colors.white
+                              : (_correct
+                                  ? const Color(0xFFE4F2E6)
+                                  : const Color(0xFFFFE4E4)),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: const Color(0xFFF19335),
+                            width: 3,
                           ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image.asset(q.imageAsset,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFF19335).withOpacity(0.1),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Image.asset(q.imageAsset,
                                   height: imageHeight - 40),
-                              if (_dropped != null)
-                                Positioned(
-                                  right: 16,
-                                  top: 16,
-                                  child: CircleAvatar(
-                                    radius: 24,
-                                    backgroundColor: _correct
-                                        ? const Color(0xFF6DB072)
-                                        : Colors.red,
-                                    child: Text(
-                                      _dropped!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'arlrdbd',
-                                        fontSize: 22,
-                                      ),
+                            ),
+                            if (_dropped != null)
+                              Positioned(
+                                right: 16,
+                                top: 16,
+                                child: CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: _correct
+                                      ? const Color(0xFF6DB072)
+                                      : Colors.red,
+                                  child: Text(
+                                    _dropped!,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'arlrdbd',
+                                      fontSize: 24,
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
+                              ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 24),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        alignment: WrapAlignment.center,
-                        children: q.options
-                            .map(
-                              (letter) => Draggable<String>(
-                                data: letter,
-                                feedback: _letterChip(letter, dragging: true),
-                                childWhenDragging:
-                                    _letterChip(letter, faded: true),
-                                child: _letterChip(letter),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      // Use Expanded spacer only inside IntrinsicHeight
-                      const Spacer(),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
+                    ),
+                    const SizedBox(height: 32),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      alignment: WrapAlignment.center,
+                      children: q.options
+                          .map(
+                            (letter) => Draggable<String>(
+                              data: letter,
+                              feedback: _letterChip(letter, dragging: true),
+                              childWhenDragging:
+                                  _letterChip(letter, faded: true),
+                              child: _letterChip(letter),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: 40),
+                    const Spacer(),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFF19335),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 32, vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
+                          elevation: 6,
                         ),
                         onPressed: _dropped != null ? _next : null,
                         child: Text(
@@ -270,12 +276,13 @@ class _DragDropQuizScreenState extends State<DragDropQuizScreen> {
                           style: const TextStyle(
                             fontFamily: 'arlrdbd',
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 20,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             );

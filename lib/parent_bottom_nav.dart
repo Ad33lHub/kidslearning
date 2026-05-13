@@ -5,6 +5,8 @@ import 'package:kids/core/theme/app_colors.dart';
 import 'package:kids/features/parent/presentation/screens/parent_dashboard_screen.dart';
 import 'package:kids/features/parent/presentation/screens/child_list_screen.dart';
 import 'package:kids/features/parent/presentation/screens/activity_history_screen.dart';
+import 'package:kids/core/providers/app_state.dart';
+import 'package:provider/provider.dart';
 import 'package:kids/privacypolicy.dart';
 
 class ParentBottomNav extends StatefulWidget {
@@ -33,18 +35,63 @@ class _ParentBottomNavState extends State<ParentBottomNav> {
     });
   }
 
+  Future<bool> _showExitDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Exit Parent Zone?',
+          style: TextStyle(fontFamily: 'arlrdbd'),
+        ),
+        content: const Text(
+          'Do you want to return to the selection screen?',
+          style: TextStyle(fontFamily: 'arlrdbd'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Stay', style: TextStyle(fontFamily: 'arlrdbd')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text(
+              'Exit',
+              style: TextStyle(fontFamily: 'arlrdbd', color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      extendBody: true,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
-      bottomNavigationBar: _ParentFloatingNavBar(
-        selectedIndex: _selectedIndex,
-        onTap: _onItemTapped,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldExit = await _showExitDialog();
+        if (shouldExit && mounted) {
+          // Go back to mode selection screen
+          context.read<AppState>().setMode(null);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        extendBody: true,
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
+        bottomNavigationBar: _ParentFloatingNavBar(
+          selectedIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

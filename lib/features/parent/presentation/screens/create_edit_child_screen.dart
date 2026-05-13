@@ -15,6 +15,7 @@ class CreateEditChildScreen extends StatefulWidget {
 class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameCtrl;
+  late final TextEditingController _ageCtrl;
   int _avatarIndex = 0;
   String _level = 'easy';
   bool _loading = false;
@@ -23,6 +24,7 @@ class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
   void initState() {
     super.initState();
     _nameCtrl = TextEditingController(text: widget.existing?.name ?? '');
+    _ageCtrl = TextEditingController(text: widget.existing?.age?.toString() ?? '');
     _avatarIndex = widget.existing?.avatarIndex ?? 0;
     _level = widget.existing?.level ?? 'easy';
   }
@@ -30,6 +32,7 @@ class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
   @override
   void dispose() {
     _nameCtrl.dispose();
+    _ageCtrl.dispose();
     super.dispose();
   }
 
@@ -39,11 +42,13 @@ class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
     try {
       final db = await AppDatabase.instance.database;
       final repo = ChildrenRepository(db);
+      final age = int.tryParse(_ageCtrl.text);
       if (widget.existing == null) {
         final parentId = context.read<AppState>().parentId!;
         await repo.create(
           parentId: parentId,
           name: _nameCtrl.text,
+          age: age,
           avatarIndex: _avatarIndex,
           level: _level,
         );
@@ -51,12 +56,14 @@ class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
         await repo.update(
           id: widget.existing!.id,
           name: _nameCtrl.text,
+          age: age,
           avatarIndex: _avatarIndex,
           level: _level,
         );
         if (mounted) {
           final updated = widget.existing!.copyWith(
             name: _nameCtrl.text,
+            age: age,
             avatarIndex: _avatarIndex,
             level: _level,
           );
@@ -154,6 +161,25 @@ class _CreateEditChildScreenState extends State<CreateEditChildScreen> {
                 ),
                 validator: (v) =>
                     (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _ageCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "Child's Age (Optional)",
+                  labelStyle: const TextStyle(fontFamily: 'arlrdbd'),
+                  prefixIcon: const Icon(Icons.cake, color: Color(0xFFF19335)),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFF19335), width: 2),
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               const Text(

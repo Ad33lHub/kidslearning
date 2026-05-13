@@ -6,6 +6,7 @@ class ChildEntity {
   final int id;
   final int parentId;
   final String name;
+  final int? age;
   final int avatarIndex;
   final String level;
   final DateTime createdAt;
@@ -14,6 +15,7 @@ class ChildEntity {
     required this.id,
     required this.parentId,
     required this.name,
+    this.age,
     required this.avatarIndex,
     required this.level,
     required this.createdAt,
@@ -23,6 +25,7 @@ class ChildEntity {
         id: row['id'] as int,
         parentId: row['parent_id'] as int,
         name: row['name'] as String,
+        age: row['age'] as int?,
         avatarIndex: row['avatar_index'] as int,
         level: row['level'] as String,
         createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -30,11 +33,12 @@ class ChildEntity {
         ),
       );
 
-  ChildEntity copyWith({String? name, int? avatarIndex, String? level}) =>
+  ChildEntity copyWith({String? name, int? age, int? avatarIndex, String? level}) =>
       ChildEntity(
         id: id,
         parentId: parentId,
         name: name ?? this.name,
+        age: age ?? this.age,
         avatarIndex: avatarIndex ?? this.avatarIndex,
         level: level ?? this.level,
         createdAt: createdAt,
@@ -52,6 +56,7 @@ class ChildrenRepository {
   Future<ChildEntity> create({
     required int parentId,
     required String name,
+    int? age,
     required int avatarIndex,
     required String level,
   }) async {
@@ -59,6 +64,7 @@ class ChildrenRepository {
     final id = await _db.insert(AppDatabase.childrenTable, {
       'parent_id': parentId,
       'name': name.trim(),
+      'age': age,
       'avatar_index': avatarIndex,
       'level': level,
       'created_at': now.millisecondsSinceEpoch,
@@ -67,6 +73,7 @@ class ChildrenRepository {
       id: id,
       parentId: parentId,
       name: name.trim(),
+      age: age,
       avatarIndex: avatarIndex,
       level: level,
       createdAt: now,
@@ -96,12 +103,18 @@ class ChildrenRepository {
   Future<bool> update({
     required int id,
     required String name,
+    int? age,
     required int avatarIndex,
     required String level,
   }) async {
     final count = await _db.update(
       AppDatabase.childrenTable,
-      {'name': name.trim(), 'avatar_index': avatarIndex, 'level': level},
+      {
+        'name': name.trim(),
+        'age': age,
+        'avatar_index': avatarIndex,
+        'level': level
+      },
       where: 'id = ?',
       whereArgs: [id],
     );

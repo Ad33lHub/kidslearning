@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:kids/core/db/app_database.dart';
 import 'package:kids/core/db/parent_repository.dart';
 import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/services/auth_service.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 
 class PinScreen extends StatefulWidget {
   final bool isSetup;
@@ -145,9 +148,124 @@ class _PinScreenState extends State<PinScreen> {
           ],
           const SizedBox(height: 40),
           _numPad(),
+          if (!widget.isSetup) ...[
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: _showForgotPinDialog,
+              child: const Text(
+                'Forgot PIN?',
+                style: TextStyle(
+                  fontFamily: 'arlrdbd',
+                  color: Color(0xFFF19335),
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  Future<void> _showForgotPinDialog() async {
+    final passwordCtrl = TextEditingController();
+    final auth = AuthService();
+    final state = context.read<AppState>();
+    final isGoogle = auth.currentUser?.providerData.any((p) => p.providerId == 'google.com') ?? false;
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          bool loading = false;
+          String? error;
+
+          Future<void> verify() async {
+            if (isGoogle) {
+              setDialogState(() { loading = true; error = null; });
+              try {
+                await auth.signInWithGoogle();
+                if (context.mounted) Navigator.pop(context, true);
+              } catch (e) {
+                if (context.mounted) setDialogState(() { loading = false; error = e.toString(); });
+              }
+              return;
+            }
+
+            if (passwordCtrl.text.isEmpty) {
+              setDialogState(() => error = 'Enter your password');
+              return;
+            }
+            setDialogState(() { loading = true; error = null; });
+            try {
+              final user = auth.currentUser;
+              if (user != null && user.email != null) {
+                final cred = EmailAuthProvider.credential(email: user.email!, password: passwordCtrl.text);
+                await user.reauthenticateWithCredential(cred);
+                if (context.mounted) Navigator.pop(context, true);
+              }
+            } catch (e) {
+              if (context.mounted) setDialogState(() { loading = false; error = 'Incorrect password'; });
+            }
+          }
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Reset PIN', style: TextStyle(fontFamily: 'arlrdbd')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isGoogle 
+                    ? 'To reset your PIN, please verify your identity by signing in with Google again.'
+                    : 'To reset your PIN, please enter your account password.',
+                  style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 14),
+                ),
+                if (!isGoogle) ...[
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordCtrl,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Account Password',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ],
+                if (error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: loading ? null : verify,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF19335),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: loading 
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Text(isGoogle ? 'Verify Google' : 'Verify Password', style: const TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        },
+      ),
+    ).then((verified) {
+      if (verified == true) {
+        // Success! Go to setup mode
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const PinScreen(isSetup: true)),
+        );
+      }
+    });
   }
 
   Widget _numPad() {

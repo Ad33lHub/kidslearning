@@ -10,7 +10,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'kids_app.db';
-  static const _dbVersion = 5;
+  static const _dbVersion = 6;
 
   static const favoritesTable = 'favorites';
   static const quizScoresTable = 'quiz_scores';
@@ -64,6 +64,7 @@ class AppDatabase {
     await _createV3Tables(db);
     await _migrateV4(db);
     await _createV5Tables(db);
+    await _migrateV6(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -81,6 +82,9 @@ class AppDatabase {
     }
     if (oldVersion < 5) {
       await _createV5Tables(db);
+    }
+    if (oldVersion < 6) {
+      await _migrateV6(db);
     }
   }
 
@@ -231,6 +235,14 @@ class AppDatabase {
       await db.execute(
         'ALTER TABLE $parentsTable ADD COLUMN photo_url TEXT',
       );
+    }
+  }
+
+  Future<void> _migrateV6(Database db) async {
+    final cols = await db.rawQuery('PRAGMA table_info($childrenTable)');
+    final names = cols.map((c) => c['name'] as String).toSet();
+    if (!names.contains('age')) {
+      await db.execute('ALTER TABLE $childrenTable ADD COLUMN age INTEGER');
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../db/app_database.dart';
 import '../db/children_repository.dart';
 import '../db/module_lock_repository.dart';
+import '../db/rewards_repository.dart';
 import '../services/auth_service.dart';
 import '../services/session_service.dart';
 import '../widgets/app_mode_selection_screen.dart';
@@ -17,6 +18,8 @@ class AppState extends ChangeNotifier {
   bool _parentUnlocked = false;
   Set<String> _lockedModules = {};
   AppMode? _mode;
+  int _stars = 0;
+  int _coins = 0;
 
   int? get parentId => _parentId;
   String? get parentEmail => _parentEmail;
@@ -26,6 +29,8 @@ class AppState extends ChangeNotifier {
   bool get hasChild => _currentChild != null;
   Set<String> get lockedModules => _lockedModules;
   AppMode? get mode => _mode;
+  int get stars => _stars;
+  int get coins => _coins;
 
   Future<void> loadSession() async {
     // Firebase persists the signed-in user locally, so subsequent launches
@@ -55,8 +60,21 @@ class AppState extends ChangeNotifier {
       final db = await AppDatabase.instance.database;
       final repo = ChildrenRepository(db);
       _currentChild = await repo.findById(childData['id'] as int);
-      if (_currentChild != null) await refreshLocks();
+      if (_currentChild != null) {
+        await refreshLocks();
+        await refreshRewards();
+      }
     }
+    notifyListeners();
+  }
+
+  Future<void> refreshRewards() async {
+    if (_currentChild == null) return;
+    final db = await AppDatabase.instance.database;
+    final repo = RewardsRepository(db);
+    final snapshot = await repo.getFor(_currentChild!.id);
+    _stars = snapshot.stars;
+    _coins = snapshot.coins;
     notifyListeners();
   }
 
@@ -85,6 +103,7 @@ class AppState extends ChangeNotifier {
     );
     _currentChild = child;
     await refreshLocks();
+    await refreshRewards();
     notifyListeners();
   }
 

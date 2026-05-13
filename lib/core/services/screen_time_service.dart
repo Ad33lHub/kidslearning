@@ -17,8 +17,12 @@ class ScreenTimeService extends ChangeNotifier {
   int get limitSeconds => _limitSeconds;
   bool get limitReached => _limitReached;
 
+  int get remainingSeconds => (_limitSeconds - _usedSeconds).clamp(0, _limitSeconds);
+  double get progress => (_usedSeconds / _limitSeconds).clamp(0.0, 1.0);
+
   String get usedFormatted => _fmt(_usedSeconds);
   String get limitFormatted => _fmt(_limitSeconds);
+  String get remainingFormatted => _fmt(remainingSeconds);
 
   Future<void> startTracking(int childId) async {
     _childId = childId;

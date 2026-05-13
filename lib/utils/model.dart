@@ -141,17 +141,17 @@ List<Numbermodel> NumberList() {
 //Number Quiz
 List<Numbermodel> NumberQuiz() {
   List<Numbermodel> NumberQuizList = [];
-  NumberQuizList.add(Numbermodel(image: A0));
-  NumberQuizList.add(Numbermodel(image: A1));
-  NumberQuizList.add(Numbermodel(image: A2));
-  NumberQuizList.add(Numbermodel(image: A3));
-  NumberQuizList.add(Numbermodel(image: A4));
-  NumberQuizList.add(Numbermodel(image: A5));
-  NumberQuizList.add(Numbermodel(image: A6));
-  NumberQuizList.add(Numbermodel(image: A7));
-  NumberQuizList.add(Numbermodel(image: A8));
-  NumberQuizList.add(Numbermodel(image: A9));
-return NumberQuizList;
+  NumberQuizList.add(Numbermodel(image: A0, Text: "ZERO"));
+  NumberQuizList.add(Numbermodel(image: A1, Text: "ONE"));
+  NumberQuizList.add(Numbermodel(image: A2, Text: "TWO"));
+  NumberQuizList.add(Numbermodel(image: A3, Text: "THREE"));
+  NumberQuizList.add(Numbermodel(image: A4, Text: "FOUR"));
+  NumberQuizList.add(Numbermodel(image: A5, Text: "FIVE"));
+  NumberQuizList.add(Numbermodel(image: A6, Text: "SIX"));
+  NumberQuizList.add(Numbermodel(image: A7, Text: "SEVEN"));
+  NumberQuizList.add(Numbermodel(image: A8, Text: "EIGHT"));
+  NumberQuizList.add(Numbermodel(image: A9, Text: "NINE"));
+  return NumberQuizList;
 }
 //ColorList
   List<Numbermodel>COLOR1() {
