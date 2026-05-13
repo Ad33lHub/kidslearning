@@ -87,9 +87,10 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              const _AuthHero(
+              _AuthHero(
                 title: 'Welcome Back!',
                 subtitle: 'Sign in to continue your child\'s journey',
+                onBack: () => context.read<AppState>().setMode(null),
               ),
               Transform.translate(
                 offset: const Offset(0, -28),
@@ -231,7 +232,12 @@ class _LoginScreenState extends State<LoginScreen> {
 class _AuthHero extends StatelessWidget {
   final String title;
   final String subtitle;
-  const _AuthHero({required this.title, required this.subtitle});
+  final VoidCallback? onBack;
+  const _AuthHero({
+    required this.title,
+    required this.subtitle,
+    this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -251,6 +257,14 @@ class _AuthHero extends StatelessWidget {
       ),
       child: Column(
         children: [
+          if (onBack != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: onBack,
+              ),
+            ),
           Container(
             width: 104,
             height: 104,

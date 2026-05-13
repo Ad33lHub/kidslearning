@@ -1,126 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
+import 'package:kids/core/widgets/cosmic_item_viewer.dart';
 import 'package:kids/utils/model.dart';
 
+class VegitableSound extends StatelessWidget {
+  final int index1;
+  const VegitableSound(this.index1, {super.key});
 
-
-
-
-class VegitableSound extends StatefulWidget {
-  int index ;
-
-  VegitableSound( this.index, {super.key});
-  @override
-  State<VegitableSound> createState() => _VegitableSoundState();
-}
-List<Numbermodel> vegitablelist =vegitable1();
-class _VegitableSoundState extends State<VegitableSound> {
-  final FlutterTts flutterTts = FlutterTts();
   @override
   Widget build(BuildContext context) {
-    int i=0;
-    Future speak() async{
-      print(await flutterTts.getLanguages);
-      await flutterTts.setLanguage("en-US");
-      await flutterTts.setPitch(1.0);
-      await flutterTts.setVolume(10.0);
-      print(await flutterTts.getVoices);
-      int count = widget.index;
-      await flutterTts.speak(vegitablelist[count].Text);
-    }
-    final controller = PageController();
-    return  Scaffold(
-          appBar: AppBar(
-            elevation: 0,
-            title: const Text(
-                'Vegetable',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd"),
-            ),
-            backgroundColor: Colors.orange[50],
-          ),
-          body: Container(
-            height: 650,
-            width: 500,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.fitHeight,
-                  image: AssetImage("assets/images/Union 12.png")
-              ),
-            ),
-            child: Center(
-                child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Card(
-                          margin: const EdgeInsets.all(20),
-                          elevation: 5,
-                          shadowColor: Colors.redAccent,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)
-                          ),
-                          child: PageView.builder(
-                            controller: controller,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount:vegitablelist.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Center(
-                                child: Image.asset(vegitablelist[widget.index].image, alignment: Alignment.topCenter,),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Column(
-                          children: [
-                            InkWell(
-                                onTap: ()=> speak(),
-                                child: Image.asset('assets/images/11MaskGroup3.png')),
-                            Align(
-                              heightFactor: 0.5,
-                              child: Center(
-                                    child: ListTile(
-                                      trailing: InkWell(
-                                        onTap: (){
-                                          if(widget.index>=0 && widget.index<12){
-                                            i++;
-                                            print(widget.index);
-                                            setState(() {
-                                              widget.index++;
-                                            });
-                                          }
-                                          speak();
-                                          // changeImage(count);
-                                        },
-                                        child: const Image(
-                                          image: AssetImage('assets/images/11MaskGroup5.png'),
-                                        ),
-                                      ),
-                                      leading: InkWell(
-                                        onTap: (){
-                                          if(widget.index>0 && widget.index<=12){
-                                            i--;
-                                            setState(() {
-                                              widget.index--;
-                                            });
-                                          }
-                                          speak();
-                                        },
-                                        child: const Image(
-                                          image: AssetImage('assets/images/11MaskGroup4.png'),
-                                        ),
-                                      ),
-
-                                    ),
-                                  ),
-                            )
-                          ]
-                      )
-                    ]
-                )
-            ),
-          )
+    final list = vegitable1();
+    return CosmicItemViewer(
+      title: 'Vegetables',
+      category: 'vegetables',
+      initialIndex: index1,
+      items: list
+          .map((m) => CosmicItemEntry(image: m.image, label: m.Text))
+          .toList(),
     );
   }
 }

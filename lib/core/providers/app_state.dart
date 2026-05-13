@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 
 import '../db/app_database.dart';
 import '../db/children_repository.dart';
+import '../db/module_lock_repository.dart';
 import '../services/auth_service.dart';
 import '../services/session_service.dart';
+import '../widgets/app_mode_selection_screen.dart';
 
 class AppState extends ChangeNotifier {
   final _session = SessionService();
@@ -13,6 +15,8 @@ class AppState extends ChangeNotifier {
   String? _parentEmail;
   ChildEntity? _currentChild;
   bool _parentUnlocked = false;
+  Set<String> _lockedModules = {};
+  AppMode? _mode;
 
   int? get parentId => _parentId;
   String? get parentEmail => _parentEmail;
@@ -20,6 +24,8 @@ class AppState extends ChangeNotifier {
   bool get isParentUnlocked => _parentUnlocked;
   bool get isLoggedIn => _parentId != null;
   bool get hasChild => _currentChild != null;
+  Set<String> get lockedModules => _lockedModules;
+  AppMode? get mode => _mode;
 
   Future<void> loadSession() async {
     // Firebase persists the signed-in user locally, so subsequent launches
@@ -49,7 +55,16 @@ class AppState extends ChangeNotifier {
       final db = await AppDatabase.instance.database;
       final repo = ChildrenRepository(db);
       _currentChild = await repo.findById(childData['id'] as int);
+      if (_currentChild != null) await refreshLocks();
     }
+    notifyListeners();
+  }
+
+  Future<void> refreshLocks() async {
+    if (_currentChild == null) return;
+    final db = await AppDatabase.instance.database;
+    _lockedModules =
+        await ModuleLockRepository(db).getLockedModules(_currentChild!.id);
     notifyListeners();
   }
 
@@ -69,6 +84,7 @@ class AppState extends ChangeNotifier {
       level: child.level,
     );
     _currentChild = child;
+    await refreshLocks();
     notifyListeners();
   }
 
@@ -100,6 +116,14 @@ class AppState extends ChangeNotifier {
 
   void refreshChild(ChildEntity updated) {
     _currentChild = updated;
+    notifyListeners();
+  }
+
+  void setMode(AppMode? mode) {
+    _mode = mode;
+    if (mode == null) {
+      _parentUnlocked = false;
+    }
     notifyListeners();
   }
 }

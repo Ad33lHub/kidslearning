@@ -162,101 +162,131 @@ class _DragDropQuizScreenState extends State<DragDropQuizScreen> {
           style: TextStyle(fontFamily: 'arlrdbd', color: Colors.black),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text(
-              q.prompt,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            DragTarget<String>(
-              onWillAccept: (_) => _dropped == null,
-              onAccept: _onAccept,
-              builder: (_, __, ___) => Container(
-                height: 220,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: _dropped == null
-                      ? Colors.white
-                      : (_correct
-                          ? const Color(0xFFE4F2E6)
-                          : const Color(0xFFFFE4E4)),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFFF19335),
-                    width: 2,
-                  ),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Responsive image height — 35% of available height, capped
+            final imageHeight =
+                (constraints.maxHeight * 0.35).clamp(150.0, 260.0);
+
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 32, // minus padding
                 ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Image.asset(q.imageAsset, height: 180),
-                    if (_dropped != null)
-                      Positioned(
-                        right: 16,
-                        top: 16,
-                        child: CircleAvatar(
-                          radius: 24,
-                          backgroundColor: _correct
-                              ? const Color(0xFF6DB072)
-                              : Colors.red,
-                          child: Text(
-                            _dropped!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'arlrdbd',
-                              fontSize: 22,
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      Text(
+                        q.prompt,
+                        textAlign: TextAlign.center,
+                        style:
+                            const TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
+                      ),
+                      const SizedBox(height: 16),
+                      DragTarget<String>(
+                        onWillAcceptWithDetails: (_) => _dropped == null,
+                        onAcceptWithDetails: (details) =>
+                            _onAccept(details.data),
+                        builder: (_, __, ___) => Container(
+                          height: imageHeight,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: _dropped == null
+                                ? Colors.white
+                                : (_correct
+                                    ? const Color(0xFFE4F2E6)
+                                    : const Color(0xFFFFE4E4)),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFF19335),
+                              width: 2,
                             ),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Image.asset(q.imageAsset,
+                                  height: imageHeight - 40),
+                              if (_dropped != null)
+                                Positioned(
+                                  right: 16,
+                                  top: 16,
+                                  child: CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: _correct
+                                        ? const Color(0xFF6DB072)
+                                        : Colors.red,
+                                    child: Text(
+                                      _dropped!,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'arlrdbd',
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
-                  ],
+                      const SizedBox(height: 24),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.center,
+                        children: q.options
+                            .map(
+                              (letter) => Draggable<String>(
+                                data: letter,
+                                feedback: _letterChip(letter, dragging: true),
+                                childWhenDragging:
+                                    _letterChip(letter, faded: true),
+                                child: _letterChip(letter),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      // Use Expanded spacer only inside IntrinsicHeight
+                      const Spacer(),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF19335),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        onPressed: _dropped != null ? _next : null,
+                        child: Text(
+                          _index + 1 == _questions.length
+                              ? 'See Result'
+                              : 'Next',
+                          style: const TextStyle(
+                            fontFamily: 'arlrdbd',
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: q.options
-                  .map(
-                    (letter) => Draggable<String>(
-                      data: letter,
-                      feedback: _letterChip(letter, dragging: true),
-                      childWhenDragging: _letterChip(letter, faded: true),
-                      child: _letterChip(letter),
-                    ),
-                  )
-                  .toList(),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF19335),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-              ),
-              onPressed: _dropped != null ? _next : null,
-              child: Text(
-                _index + 1 == _questions.length ? 'See Result' : 'Next',
-                style: const TextStyle(
-                  fontFamily: 'arlrdbd',
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _letterChip(String letter, {bool dragging = false, bool faded = false}) {
+  Widget _letterChip(String letter,
+      {bool dragging = false, bool faded = false}) {
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -265,7 +295,9 @@ class _DragDropQuizScreenState extends State<DragDropQuizScreen> {
         decoration: BoxDecoration(
           color: faded
               ? Colors.grey.shade300
-              : (dragging ? const Color(0xFFEBE8FD) : const Color(0xFFFEF9E4)),
+              : (dragging
+                  ? const Color(0xFFEBE8FD)
+                  : const Color(0xFFFEF9E4)),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: const Color(0xFFF19335), width: 2),
         ),

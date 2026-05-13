@@ -5,6 +5,7 @@ import 'package:kids/core/providers/app_state.dart';
 import 'package:provider/provider.dart';
 
 import 'parent_dashboard_screen.dart';
+import 'package:kids/parent_bottom_nav.dart';
 import 'pin_screen.dart';
 
 class ParentZonePage extends StatelessWidget {
@@ -35,7 +36,7 @@ class ParentZonePage extends StatelessWidget {
     final state = context.watch<AppState>();
 
     if (state.isParentUnlocked) {
-      return const ParentDashboardScreen();
+      return const ParentBottomNav();
     }
 
     return Scaffold(
@@ -79,6 +80,18 @@ class ParentZonePage extends StatelessWidget {
                   fontFamily: 'arlrdbd',
                   fontSize: 18,
                   color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => state.setMode(null),
+              child: const Text(
+                'Back to Selection',
+                style: TextStyle(
+                  fontFamily: 'arlrdbd',
+                  color: Colors.black54,
+                  fontSize: 14,
                 ),
               ),
             ),

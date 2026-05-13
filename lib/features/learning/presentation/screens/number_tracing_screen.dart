@@ -10,7 +10,7 @@ class NumberTracingScreen extends StatefulWidget {
 
 class _NumberTracingScreenState extends State<NumberTracingScreen> {
   int _index = 0;
-  final List<Offset> _points = [];
+  final List<List<Offset>> _strokes = [[]];
   bool _traced = false;
   final FlutterTts _tts = FlutterTts();
 
@@ -42,7 +42,8 @@ class _NumberTracingScreenState extends State<NumberTracingScreen> {
     if (_index < _numbers.length - 1) {
       setState(() {
         _index++;
-        _points.clear();
+        _strokes.clear();
+        _strokes.add([]);
         _traced = false;
       });
       _speak();
@@ -53,17 +54,26 @@ class _NumberTracingScreenState extends State<NumberTracingScreen> {
     if (_index > 0) {
       setState(() {
         _index--;
-        _points.clear();
+        _strokes.clear();
+        _strokes.add([]);
         _traced = false;
       });
       _speak();
     }
   }
 
+  void _onPanStart(DragStartDetails d) {
+    setState(() {
+      _strokes.add([d.localPosition]);
+    });
+  }
+
   void _onPanUpdate(DragUpdateDetails d) {
     setState(() {
-      _points.add(d.localPosition);
-      if (_points.length > 30) _traced = true;
+      _strokes.last.add(d.localPosition);
+      final totalPoints =
+          _strokes.fold<int>(0, (sum, s) => sum + s.length);
+      if (totalPoints > 30) _traced = true;
     });
   }
 
@@ -73,8 +83,19 @@ class _NumberTracingScreenState extends State<NumberTracingScreen> {
     }
   }
 
+  void _clearCanvas() {
+    setState(() {
+      _strokes.clear();
+      _strokes.add([]);
+      _traced = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final canvasSize = (screenSize.width * 0.70).clamp(200.0, 320.0);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFEF7F0),
       appBar: AppBar(
@@ -86,90 +107,102 @@ class _NumberTracingScreenState extends State<NumberTracingScreen> {
           style: TextStyle(fontFamily: 'arlrdbd', color: Colors.black),
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-          Text(
-            'Trace the number  ${_numbers[_index]}',
-            style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 20),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _words[_index],
-            style: const TextStyle(
-              fontFamily: 'arlrdbd',
-              fontSize: 16,
-              color: Color(0xFFF19335),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 8),
+            Text(
+              'Trace the number  ${_numbers[_index]}',
+              style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 20),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Center(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 280,
-                    height: 280,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: const Color(0xFF6DB072),
-                        width: 3,
+            const SizedBox(height: 4),
+            Text(
+              _words[_index],
+              style: const TextStyle(
+                fontFamily: 'arlrdbd',
+                fontSize: 16,
+                color: Color(0xFFF19335),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: canvasSize,
+                      height: canvasSize,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: _traced
+                              ? const Color(0xFF6DB072)
+                              : const Color(0xFF6DB072).withOpacity(0.4),
+                          width: 3,
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        _numbers[_index],
-                        style: TextStyle(
-                          fontSize: 180,
-                          color: Colors.grey.shade200,
-                          fontFamily: 'arlrdbd',
+                      child: Center(
+                        child: Text(
+                          _numbers[_index],
+                          style: TextStyle(
+                            fontSize: canvasSize * 0.64,
+                            color: Colors.grey.shade200,
+                            fontFamily: 'arlrdbd',
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    child: CustomPaint(
-                      size: const Size(280, 280),
-                      painter: _TracePainter(_points),
+                    // Drawing surface — gesture-isolated
+                    SizedBox(
+                      width: canvasSize,
+                      height: canvasSize,
+                      child: GestureDetector(
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        behavior: HitTestBehavior.opaque,
+                        child: RepaintBoundary(
+                          child: CustomPaint(
+                            size: Size(canvasSize, canvasSize),
+                            painter: _TracePainter(_strokes),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_traced)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: Text(
-                '⭐ Excellent! ⭐',
-                style: TextStyle(
-                  fontFamily: 'arlrdbd',
-                  fontSize: 22,
-                  color: Color(0xFF6DB072),
+                  ],
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _navBtn(Icons.arrow_back, const Color(0xFF6DB072), _index > 0 ? _prev : null),
-                _navBtn(Icons.refresh, Colors.grey, () => setState(() {
-                  _points.clear();
-                  _traced = false;
-                })),
-                _navBtn(Icons.volume_up, const Color(0xFFF19335), _speak),
-                _navBtn(Icons.arrow_forward, const Color(0xFF6DB072), _index < _numbers.length - 1 ? _next : null),
-              ],
+            if (_traced)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Text(
+                  '⭐ Excellent! ⭐',
+                  style: TextStyle(
+                    fontFamily: 'arlrdbd',
+                    fontSize: 22,
+                    color: Color(0xFF6DB072),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _navBtn(Icons.arrow_back, const Color(0xFF6DB072),
+                      _index > 0 ? _prev : null),
+                  _navBtn(Icons.refresh, Colors.grey, _clearCanvas),
+                  _navBtn(Icons.volume_up, const Color(0xFFF19335), _speak),
+                  _navBtn(Icons.arrow_forward, const Color(0xFF6DB072),
+                      _index < _numbers.length - 1 ? _next : null),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -178,17 +211,18 @@ class _NumberTracingScreenState extends State<NumberTracingScreen> {
       ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: color,
+          backgroundColor: onTap != null ? color : Colors.grey.shade300,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(16),
+          elevation: onTap != null ? 4 : 0,
         ),
         child: Icon(icon, color: Colors.white),
       );
 }
 
 class _TracePainter extends CustomPainter {
-  final List<Offset> points;
-  _TracePainter(this.points);
+  final List<List<Offset>> strokes;
+  _TracePainter(this.strokes);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -196,16 +230,19 @@ class _TracePainter extends CustomPainter {
       ..color = const Color(0xFF6DB072).withOpacity(0.7)
       ..strokeWidth = 18
       ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
       ..style = PaintingStyle.stroke;
 
-    final path = Path();
-    for (int i = 0; i < points.length - 1; i++) {
-      path.moveTo(points[i].dx, points[i].dy);
-      path.lineTo(points[i + 1].dx, points[i + 1].dy);
+    for (final stroke in strokes) {
+      if (stroke.length < 2) continue;
+      final path = Path()..moveTo(stroke.first.dx, stroke.first.dy);
+      for (int i = 1; i < stroke.length; i++) {
+        path.lineTo(stroke[i].dx, stroke[i].dy);
+      }
+      canvas.drawPath(path, paint);
     }
-    canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _TracePainter old) => old.points != points;
+  bool shouldRepaint(covariant _TracePainter old) => true;
 }

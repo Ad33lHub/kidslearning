@@ -211,7 +211,7 @@ class _ChildListScreenState extends State<ChildListScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 140),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (_, i) => _ChildTile(
@@ -226,19 +226,22 @@ class _ChildListScreenState extends State<ChildListScreen> {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(builder: (_) => const CreateEditChildScreen()),
-          );
-          if (result == true) _load();
-        },
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.person_add, color: Colors.white),
-        label: const Text(
-          'Add Child',
-          style: TextStyle(fontFamily: 'arlrdbd', color: Colors.white),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 120),
+        child: FloatingActionButton.extended(
+          onPressed: () async {
+            final result = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => const CreateEditChildScreen()),
+            );
+            if (result == true) _load();
+          },
+          backgroundColor: AppColors.primary,
+          icon: const Icon(Icons.person_add, color: Colors.white),
+          label: const Text(
+            'Add Child',
+            style: TextStyle(fontFamily: 'arlrdbd', color: Colors.white),
+          ),
         ),
       ),
     );

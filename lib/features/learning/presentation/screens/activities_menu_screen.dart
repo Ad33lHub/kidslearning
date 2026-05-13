@@ -8,25 +8,30 @@ import 'drag_drop_quiz_screen.dart';
 import 'letter_matching_screen.dart';
 import 'letter_tracing_screen.dart';
 import 'number_tracing_screen.dart';
+import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/services/background_music_service.dart';
+import 'package:provider/provider.dart';
 import 'rhymes_screen.dart';
 import 'shape_matching_screen.dart';
+
+import 'animal_sound_screen.dart';
 
 class ActivitiesMenuScreen extends StatelessWidget {
   const ActivitiesMenuScreen({super.key});
 
   static const _items = [
-    _ActivityItem('Letter Tracing', '✏️', AppColors.gradientAlphabet),
-    _ActivityItem('Number Tracing', '🔢', AppColors.gradientNumbers),
-    _ActivityItem('Letter Matching', '🔤', AppColors.gradientMonths),
-    _ActivityItem('Counting Fun', '🎯', AppColors.gradientColors),
-    _ActivityItem('Color Matching', '🎨', AppColors.gradientAnimals),
-    _ActivityItem('Shape Matching', '🔷', AppColors.gradientShapes),
-    _ActivityItem('Animal Sounds', '🦁', AppColors.gradientListen),
-    _ActivityItem('Rhymes', '🎵', AppColors.gradientRewards),
-    _ActivityItem('Drag & Drop', '🧲', AppColors.gradientActivities),
+    _ActivityItem('Letter Tracing', '✏️', AppColors.gradientAlphabet, 'alphabet'),
+    _ActivityItem('Number Tracing', '🔢', AppColors.gradientNumbers, 'numbers'),
+    _ActivityItem('Letter Matching', '🔤', AppColors.gradientMonths, 'alphabet'),
+    _ActivityItem('Counting Fun', '🎯', AppColors.gradientColors, 'numbers'),
+    _ActivityItem('Color Matching', '🎨', AppColors.gradientAnimals, 'colors'),
+    _ActivityItem('Shape Matching', '🔷', AppColors.gradientShapes, 'shapes'),
+    _ActivityItem('Animal Sounds', '🦁', AppColors.gradientListen, 'animals'),
+    _ActivityItem('Rhymes', '🎵', AppColors.gradientRewards, 'alphabet'),
+    _ActivityItem('Drag & Drop', '🧲', AppColors.gradientActivities, 'shapes'),
   ];
 
-  void _navigate(BuildContext context, int index) {
+  Future<void> _navigate(BuildContext context, int index) async {
     Widget screen;
     switch (index) {
       case 0:
@@ -59,7 +64,18 @@ class ActivitiesMenuScreen extends StatelessWidget {
       default:
         return;
     }
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    
+    // Pause music for activity
+    await BackgroundMusicService.instance.pause();
+    
+    if (context.mounted) {
+      await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    }
+    
+    // Resume music when returning (only if we are still on the Activities tab)
+    // Actually, BottomNav handles the tab-based music logic, 
+    // but here we are in a sub-navigation of a tab.
+    await BackgroundMusicService.instance.resume();
   }
 
   @override
@@ -114,23 +130,45 @@ class ActivitiesMenuScreen extends StatelessWidget {
             backgroundColor: const Color(0xFFF97316),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 14,
-                mainAxisSpacing: 14,
-                childAspectRatio: 1.0,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (_, i) => _ActivityCard(
-                  item: _items[i],
-                  onTap: () => _navigate(context, i),
+          Consumer<AppState>(
+            builder: (context, state, child) {
+              final locked = state.lockedModules;
+              return SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 1.0,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (_, i) {
+                      final item = _items[i];
+                      final isLocked = locked.contains(item.moduleKey);
+                      return _ActivityCard(
+                        item: item,
+                        isLocked: isLocked,
+                        onTap: isLocked
+                            ? () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: AppColors.error,
+                                    content: const Text(
+                                      'This activity is locked by your parent! 🔒',
+                                      style: TextStyle(fontFamily: 'arlrdbd'),
+                                    ),
+                                  ),
+                                );
+                              }
+                            : () => _navigate(context, i),
+                      );
+                    },
+                    childCount: _items.length,
+                  ),
                 ),
-                childCount: _items.length,
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -140,15 +178,22 @@ class ActivitiesMenuScreen extends StatelessWidget {
 
 class _ActivityCard extends StatelessWidget {
   final _ActivityItem item;
+  final bool isLocked;
   final VoidCallback onTap;
 
-  const _ActivityCard({required this.item, required this.onTap});
+  const _ActivityCard({
+    required this.item,
+    required this.isLocked,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: Opacity(
+        opacity: isLocked ? 0.7 : 1.0,
+        child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -207,10 +252,28 @@ class _ActivityCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (isLocked)
+              Positioned.fill(
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
-    );
+    ),
+   );
   }
 }
 
@@ -218,6 +281,7 @@ class _ActivityItem {
   final String title;
   final String emoji;
   final List<Color> gradient;
+  final String moduleKey;
 
-  const _ActivityItem(this.title, this.emoji, this.gradient);
+  const _ActivityItem(this.title, this.emoji, this.gradient, this.moduleKey);
 }

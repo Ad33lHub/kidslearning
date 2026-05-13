@@ -49,98 +49,94 @@ class _RewardsScreenState extends State<RewardsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 140,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'My Rewards',
-                style: TextStyle(
-                  fontFamily: 'arlrdbd',
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: AppColors.gradientRewards,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -30,
-                      right: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.12),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: -10,
-                      left: 30,
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.08),
-                        ),
-                      ),
-                    ),
-                    const Positioned(
-                      bottom: 20,
-                      right: 24,
-                      child: Text('🏆', style: TextStyle(fontSize: 44)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            backgroundColor: const Color(0xFFF59E0B),
-            iconTheme: const IconThemeData(color: Colors.white),
-          ),
-          if (_loading)
-            const SliverFillRemaining(
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.primary),
-              ),
+      body: _loading
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
-          else
-            SliverToBoxAdapter(
-              child: RefreshIndicator(
-                onRefresh: _load,
-                color: AppColors.primary,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _statRow(),
-                      const SizedBox(height: 14),
-                      _streakCard(),
-                      const SizedBox(height: 20),
-                      _sectionTitle('Badges Earned'),
-                      const SizedBox(height: 10),
-                      _badgesGrid(),
-                      const SizedBox(height: 24),
-                    ],
+          : RefreshIndicator(
+              onRefresh: _load,
+              color: AppColors.primary,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 140,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      title: const Text(
+                        'My Rewards',
+                        style: TextStyle(
+                          fontFamily: 'arlrdbd',
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      background: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: AppColors.gradientRewards,
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: -30,
+                              right: -30,
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.12),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              bottom: -10,
+                              left: 30,
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.08),
+                                ),
+                              ),
+                            ),
+                            const Positioned(
+                              bottom: 20,
+                              right: 24,
+                              child:
+                                  Text('🏆', style: TextStyle(fontSize: 44)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    backgroundColor: const Color(0xFFF59E0B),
+                    iconTheme: const IconThemeData(color: Colors.white),
                   ),
-                ),
+                  // Content as SliverPadding + SliverList — no nested scroll
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _statRow(),
+                        const SizedBox(height: 14),
+                        _streakCard(),
+                        const SizedBox(height: 20),
+                        _sectionTitle('Badges Earned'),
+                        const SizedBox(height: 10),
+                        _badgesGrid(),
+                        const SizedBox(height: 24),
+                      ]),
+                    ),
+                  ),
+                ],
               ),
             ),
-        ],
-      ),
     );
   }
 
@@ -250,26 +246,28 @@ class _RewardsScreenState extends State<RewardsScreen> {
               child: const Text('🔥', style: TextStyle(fontSize: 34)),
             ),
             const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${_streak.current}-Day Streak!',
-                  style: const TextStyle(
-                    fontFamily: 'arlrdbd',
-                    fontSize: 20,
-                    color: Colors.white,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_streak.current}-Day Streak!',
+                    style: const TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                Text(
-                  'Best: ${_streak.longest} days 🏅',
-                  style: const TextStyle(
-                    fontFamily: 'arlrdbd',
-                    fontSize: 14,
-                    color: Colors.white70,
+                  Text(
+                    'Best: ${_streak.longest} days 🏅',
+                    style: const TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

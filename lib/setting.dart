@@ -27,7 +27,6 @@ class _SettingState extends State<Setting> {
   }
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
@@ -36,54 +35,54 @@ class _SettingState extends State<Setting> {
         backgroundColor: const Color(0xFFFEF7F0),
         elevation: 0,
       ),
-      body: Container(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height:size.height*0.3,
-              child:  Stack(
-                children: [
-                  Container(
-                      height: size.height * 0.3 - 27,
-                      decoration: const BoxDecoration(
-                          color: Color(0xFFFEF7F0),
-                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(36),bottomRight: Radius.circular(36))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset("assets/images/sun.png"),
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Good",
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontFamily: "arlrdbd",
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "Morning!",
-                                    style: TextStyle(
-                                      fontSize: 25,
-                                      fontFamily: "arlrdbd",
-                                      color: Color(0xFFF19335),
-                                    ),
-                                  ),
-                                )
-                              ],
+            // Responsive header — uses ConstrainedBox instead of fixed height
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                    color: Color(0xFFFEF7F0),
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(36),
+                        bottomRight: Radius.circular(36))),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset("assets/images/sun.png"),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Good",
+                            style: TextStyle(
+                              fontSize: 25,
+                              fontFamily: "arlrdbd",
+                              color: Colors.black,
                             ),
-                          ],
-                        ),
-                      )
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(
+                              "Morning!",
+                              style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: "arlrdbd",
+                                color: Color(0xFFF19335),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
             Padding(
@@ -93,7 +92,8 @@ class _SettingState extends State<Setting> {
                 child: Container(
                    decoration: BoxDecoration(color: const Color(0xFFE4F2E6),borderRadius: BorderRadius.circular(10)),
                    height: 80,
-                   width: 300,
+                   // Use responsive width instead of fixed 300
+                   constraints: const BoxConstraints(maxWidth: 400),
                    alignment: Alignment.centerLeft,
                    margin: const EdgeInsets.all(10),
                    child: const Padding(
@@ -117,7 +117,8 @@ class _SettingState extends State<Setting> {
                 child: Container(
                   decoration: BoxDecoration(color: const Color(0xFFFEF9E4),borderRadius: BorderRadius.circular(10)),
                   height: 80,
-                  width: 300,
+                  // Use responsive width instead of fixed 300
+                  constraints: const BoxConstraints(maxWidth: 400),
                   alignment: Alignment.centerLeft,
                   child: const Padding(
                     padding: EdgeInsets.all(8.0),

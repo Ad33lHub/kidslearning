@@ -10,7 +10,7 @@ class AppDatabase {
   static final AppDatabase instance = AppDatabase._();
 
   static const _dbName = 'kids_app.db';
-  static const _dbVersion = 4;
+  static const _dbVersion = 5;
 
   static const favoritesTable = 'favorites';
   static const quizScoresTable = 'quiz_scores';
@@ -23,6 +23,7 @@ class AppDatabase {
   static const badgesTable = 'badges';
   static const moduleProgressTable = 'module_progress';
   static const streaksTable = 'streaks';
+  static const moduleLocksTable = 'module_locks';
 
   Database? _db;
   bool _ffiInitialized = false;
@@ -62,6 +63,7 @@ class AppDatabase {
     await _createV2Tables(db);
     await _createV3Tables(db);
     await _migrateV4(db);
+    await _createV5Tables(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -76,6 +78,9 @@ class AppDatabase {
     }
     if (oldVersion < 4) {
       await _migrateV4(db);
+    }
+    if (oldVersion < 5) {
+      await _createV5Tables(db);
     }
   }
 
@@ -186,6 +191,16 @@ class AppDatabase {
         current_streak    INTEGER NOT NULL DEFAULT 0,
         longest_streak    INTEGER NOT NULL DEFAULT 0,
         last_activity_day TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createV5Tables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS $moduleLocksTable (
+        child_id   INTEGER NOT NULL,
+        module_key TEXT NOT NULL,
+        PRIMARY KEY (child_id, module_key)
       )
     ''');
   }

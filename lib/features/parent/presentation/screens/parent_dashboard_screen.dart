@@ -10,6 +10,7 @@ import 'package:kids/core/db/rewards_repository.dart';
 import 'package:kids/core/db/streaks_repository.dart';
 import 'package:kids/core/providers/app_state.dart';
 import 'package:kids/core/theme/app_colors.dart';
+import 'package:kids/core/db/module_lock_repository.dart';
 import 'package:provider/provider.dart';
 
 import 'activity_history_screen.dart';
@@ -27,6 +28,7 @@ class _DashboardData {
   final StreakSnapshot streak;
   final List<BadgeEntity> badges;
   final List<ChildEntity> children;
+  final Set<String> lockedModules;
 
   const _DashboardData({
     required this.totalLearningSecs,
@@ -38,6 +40,7 @@ class _DashboardData {
     required this.streak,
     required this.badges,
     required this.children,
+    required this.lockedModules,
   });
 }
 
@@ -81,6 +84,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     RewardsSnapshot rewards = RewardsSnapshot.empty;
     StreakSnapshot streak = StreakSnapshot.empty;
     List<BadgeEntity> badges = const [];
+    Set<String> locked = const {};
 
     if (childId != null) {
       totalSecs =
@@ -92,6 +96,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       rewards = await RewardsRepository(db).getFor(childId);
       streak = await StreaksRepository(db).getFor(childId);
       badges = await BadgesRepository(db).listFor(childId);
+      locked = await ModuleLockRepository(db).getLockedModules(childId);
     }
 
     if (mounted) {
@@ -106,10 +111,28 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           streak: streak,
           badges: badges,
           children: children,
+          lockedModules: locked,
         );
         _loading = false;
       });
     }
+  }
+
+  Future<void> _toggleLock(String module, bool lock) async {
+    final state = context.read<AppState>();
+    final childId = state.currentChild?.id;
+    if (childId == null) return;
+
+    final db = await AppDatabase.instance.database;
+    final repo = ModuleLockRepository(db);
+
+    if (lock) {
+      await repo.lock(childId, module);
+    } else {
+      await repo.unlock(childId, module);
+    }
+    await state.refreshLocks(); // Sync to global state
+    _load(); // Refresh local UI
   }
 
   @override
@@ -132,11 +155,16 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                   _buildAppBar(context, state, child),
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16),
+                          if (_data!.children.length > 1) ...[
+                            _sectionLabel('👥 Switch Child'),
+                            const SizedBox(height: 12),
+                            _childSelector(state),
+                            const SizedBox(height: 20),
+                          ],
                           _statsRow(),
                           const SizedBox(height: 14),
                           _screenTimeCard(),
@@ -165,6 +193,67 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _childSelector(AppState state) {
+    return SizedBox(
+      height: 70,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _data!.children.length,
+        itemBuilder: (context, i) {
+          final c = _data!.children[i];
+          final isSelected = c.id == state.currentChild?.id;
+          final emoji = ChildrenRepository.avatarEmojis[
+              c.avatarIndex % ChildrenRepository.avatarEmojis.length];
+
+          return GestureDetector(
+            onTap: () {
+              if (!isSelected) {
+                state.setChild(c);
+                _load();
+              }
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.only(right: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primary : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected ? AppColors.primary : Colors.grey.shade200,
+                  width: 1.5,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ]
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Text(
+                    c.name,
+                    style: TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 14,
+                      color: isSelected ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -235,6 +324,16 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      const Text(
+                        'Parent Dashboard',
+                        style: TextStyle(
+                          fontFamily: 'arlrdbd',
+                          fontSize: 16,
+                          color: Colors.white70,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Container(
@@ -295,14 +394,6 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
                 ),
               ),
             ],
-          ),
-        ),
-        title: const Text(
-          'Parent Dashboard',
-          style: TextStyle(
-            fontFamily: 'arlrdbd',
-            fontSize: 18,
-            color: Colors.white,
           ),
         ),
       ),
@@ -473,6 +564,8 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           pct: pct,
           gradient: gradient,
           bestScore: p?.bestScore,
+          isLocked: _data!.lockedModules.contains(module),
+          onLockToggle: (val) => _toggleLock(module, val),
         );
       }).toList(),
     );
@@ -694,6 +787,12 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
           gradient: AppColors.gradientColors,
           onTap: () => state.clearChild(),
         ),
+        _ActionTile(
+          emoji: '🚪',
+          label: 'Switch Mode',
+          gradient: [const Color(0xFFF19335), const Color(0xFFE07A1F)],
+          onTap: () => state.setMode(null),
+        ),
       ],
     );
   }
@@ -788,12 +887,16 @@ class _CategoryProgressTile extends StatelessWidget {
   final double pct;
   final List<Color> gradient;
   final int? bestScore;
+  final bool isLocked;
+  final ValueChanged<bool> onLockToggle;
 
   const _CategoryProgressTile({
     required this.emoji,
     required this.label,
     required this.pct,
     required this.gradient,
+    required this.isLocked,
+    required this.onLockToggle,
     this.bestScore,
   });
 
@@ -840,12 +943,26 @@ class _CategoryProgressTile extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
+               Text(
                 '$pctInt%',
                 style: TextStyle(
                   fontFamily: 'arlrdbd',
                   fontSize: 15,
-                  color: pctInt >= 70 ? AppColors.success : AppColors.primary,
+                  color: isLocked 
+                      ? Colors.grey 
+                      : (pctInt >= 70 ? AppColors.success : AppColors.primary),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                onPressed: () => onLockToggle(!isLocked),
+                icon: Icon(
+                  isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                  size: 20,
+                  color: isLocked ? AppColors.error : Colors.grey.shade400,
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kids/core/providers/app_state.dart';
 import 'package:kids/core/services/screen_time_service.dart';
 import 'package:kids/features/parent/presentation/screens/times_up_screen.dart';
+import 'package:kids/core/services/background_music_service.dart';
 import 'package:provider/provider.dart';
 
 import 'bottomnavigation.dart';
@@ -25,6 +26,15 @@ class _MainShellState extends State<MainShell> {
     if (childId != null) {
       await context.read<ScreenTimeService>().startTracking(childId);
     }
+    // Start background music for children's mode
+    BackgroundMusicService.instance.play();
+  }
+
+  @override
+  void dispose() {
+    // Stop music when leaving children's mode
+    BackgroundMusicService.instance.stop();
+    super.dispose();
   }
 
   @override

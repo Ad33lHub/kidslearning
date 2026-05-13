@@ -1,62 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:kids/Alphabetssound/MonthSound.dart';
+import 'package:kids/core/widgets/cosmic_gallery_screen.dart';
 import 'package:kids/utils/model.dart';
 
-
-class Month extends StatelessWidget{
-  List<Numbermodel> monthlist =month1();
-
+class Month extends StatelessWidget {
   Month({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.black),
-          backgroundColor: Colors.orange[50],
-          elevation: 0,
-          title: const Center(child: Text('Month',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd"),)),
+    final list = month1();
+    final items = List<CosmicGalleryItem>.generate(list.length, (i) {
+      final m = list[i];
+      return CosmicGalleryItem(
+        label: m.Text,
+        image: m.image,
+        spoken: m.Text,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MonthSound(i)),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Container(
-            child: GridView.builder(
-              itemCount: monthlist.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (BuildContext context, int index,) {
-                return   InkWell(
-                  splashColor: Colors.redAccent,
-                    onTap: (){
-                      print(monthlist);
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=>MonthSound(index),
-                      ));
-                    },
-                    child: Card(
-                      color: const Color(0xFFFEF9E4),
-                      elevation: 5,
-                      margin: const EdgeInsets.all(10),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)
-                      ),
-                      shadowColor: Colors.redAccent,
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(monthlist[index].image,height: 120,),
-                            Text(monthlist[index].Text, style: const TextStyle(color: Colors.black,fontFamily: "arlrdbd"),)
-                          ]
-                      ),
-                    )
-                );
-              },
-            ),
-          ),
-        )
+      );
+    });
+
+    return CosmicGalleryScreen(
+      title: 'Months',
+      subtitle: 'Travel through the year',
+      category: 'months',
+      items: items,
     );
   }
 }
-

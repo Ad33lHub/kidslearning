@@ -1,66 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:kids/Alphabetssound/FruitSound.dart';
+import 'package:kids/core/widgets/cosmic_gallery_screen.dart';
 import 'package:kids/utils/model.dart';
 
-
-class Fruits extends StatefulWidget{
+class Fruits extends StatelessWidget {
   const Fruits({super.key});
 
   @override
-  State<Fruits> createState() => _FruitsState();
-}
-List<Numbermodel> FRUITlist = fruit1();
-class _FruitsState extends State<Fruits> {
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.black),
-          backgroundColor: Colors.orange[50],
-          elevation: 0,
-          title: const Center(child: Text('Fruit',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd"),)),
+    final list = fruit1();
+    final items = List<CosmicGalleryItem>.generate(list.length, (i) {
+      final m = list[i];
+      return CosmicGalleryItem(
+        label: m.Text,
+        image: m.image,
+        spoken: m.Text,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => FruitSound(i)),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Container(
-            child: GridView.builder(
-              itemCount: FRUITlist.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (BuildContext context, int index,) {
-                return   InkWell(
-                  splashColor: Colors.redAccent,
-                    onTap: (){
-                      print(FRUITlist);
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=>FruitSound(index),
-                      ));
-                    },
-                    child: Card(
-                      color: const Color(0xFFFEF9E4),
-                      elevation: 5,
-                      margin: const EdgeInsets.all(10),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)
-                      ),
-                      shadowColor: Colors.redAccent,
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(FRUITlist[index].image,height: 120,),
-                            Text(FRUITlist[index].Text, style: const TextStyle(color: Colors.black,fontFamily: "arlrdbd"),)
-                          ]
-                      ),
-                    )
-                );
-              },
-            ),
-          ),
-        )
+      );
+    });
+
+    return CosmicGalleryScreen(
+      title: 'Fruits',
+      subtitle: 'Sweet treasures of the orchard',
+      category: 'fruits',
+      items: items,
     );
   }
 }
-

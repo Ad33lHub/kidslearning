@@ -76,6 +76,16 @@ class QuizScoresRepository {
     return rows.first['best'] as int?;
   }
 
+  /// Global best score for a category (used in legacy tests).
+  Future<int?> bestScoreFor(String category) async {
+    final rows = await _db.rawQuery(
+      'SELECT MAX(score) AS best FROM ${AppDatabase.quizScoresTable} '
+      'WHERE category = ?',
+      [category],
+    );
+    return rows.first['best'] as int?;
+  }
+
   /// History for a specific child (most recent first).
   Future<List<QuizScore>> historyFor(int childId, {int limit = 50}) async {
     final rows = await _db.query(

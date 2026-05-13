@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kids/core/providers/app_state.dart';
 import 'package:kids/core/services/screen_time_service.dart';
+import 'package:kids/core/widgets/app_mode_selection_screen.dart';
+import 'package:kids/core/widgets/cosmic_splash_screen.dart';
 import 'package:kids/features/auth/presentation/screens/login_screen.dart';
 import 'package:kids/features/parent/presentation/screens/child_selection_screen.dart';
+import 'package:kids/features/parent/presentation/screens/parent_zone_page.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -58,7 +61,6 @@ class MyApp extends StatelessWidget {
           seedColor: const Color(0xFF6D28D9),
           primary: const Color(0xFF6D28D9),
           secondary: const Color(0xFFF43F5E),
-          background: const Color(0xFFF5F3FF),
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
@@ -86,47 +88,60 @@ class AppEntryScreen extends StatefulWidget {
 }
 
 class _AppEntryScreenState extends State<AppEntryScreen> {
-  bool _loading = true;
+  bool _splashFinished = false;
+  bool _initializing = true;
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(_init);
+    _init();
   }
 
   Future<void> _init() async {
     await context.read<AppState>().loadSession();
-    if (mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _initializing = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
+    final state = context.watch<AppState>();
+
+    // 1. Show Splash first (3.5s)
+    if (!_splashFinished) {
+      return CosmicSplashScreen(
+        onFinish: () => setState(() => _splashFinished = true),
+      );
+    }
+
+    // 2. Wait for session load if it's still running
+    if (_initializing) {
       return const Scaffold(
-        backgroundColor: Color(0xFF4C1D95),
+        backgroundColor: Color(0xFF0E0E10),
         body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '🌟',
-                style: TextStyle(fontSize: 64),
-              ),
-              SizedBox(height: 24),
-              CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 3,
-              ),
-            ],
-          ),
+          child: CircularProgressIndicator(color: Colors.white),
         ),
       );
     }
 
-    final state = context.watch<AppState>();
+    // 3. Show Mode Selection
+    if (state.mode == null) {
+      return AppModeSelectionScreen(
+        onSelected: (mode) => state.setMode(mode),
+      );
+    }
 
-    if (!state.isLoggedIn) return const LoginScreen();
-    if (!state.hasChild) return const ChildSelectionScreen();
-    return const MainShell();
+    // 4. Handle Redirection based on Mode
+    if (state.mode == AppMode.parent) {
+      // If parent mode, we might still need login
+      if (!state.isLoggedIn) return const LoginScreen();
+      return const Scaffold(
+        body: ParentZonePage(),
+      );
+    } else {
+      // Children Mode
+      if (!state.isLoggedIn) return const LoginScreen();
+      if (!state.hasChild) return const ChildSelectionScreen();
+      return const MainShell();
+    }
   }
 }

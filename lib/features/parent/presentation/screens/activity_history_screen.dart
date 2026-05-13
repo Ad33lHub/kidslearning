@@ -108,41 +108,63 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
           headerSliverBuilder: (_, __) => [
             SliverAppBar(
               pinned: true,
-              expandedHeight: 100,
-              backgroundColor: AppColors.primaryDark,
-              iconTheme: const IconThemeData(color: Colors.white),
+              expandedHeight: 120,
+              backgroundColor: AppColors.primary,
+              automaticallyImplyLeading: false,
               flexibleSpace: FlexibleSpaceBar(
+                titlePadding: const EdgeInsets.only(left: 20, bottom: 62),
                 title: const Text(
                   'Activity History',
                   style: TextStyle(
                     fontFamily: 'arlrdbd',
-                    fontSize: 18,
+                    fontSize: 20,
                     color: Colors.white,
                   ),
                 ),
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: AppColors.headerGradient,
+                      colors: [AppColors.primary, AppColors.primaryDark],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                   ),
                 ),
               ),
-              bottom: TabBar(
-                labelStyle: const TextStyle(fontFamily: 'arlrdbd'),
-                indicatorColor: Colors.white,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white60,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white.withOpacity(0.20),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(50),
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TabBar(
+                    labelStyle: const TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 14,
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    dividerColor: Colors.transparent,
+                    indicatorColor: Colors.white,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: Colors.white70,
+                    indicator: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
+                    ),
+                    tabs: const [
+                      Tab(text: 'Sessions'),
+                      Tab(text: 'Quiz Scores'),
+                    ],
+                  ),
                 ),
-                tabs: const [
-                  Tab(text: 'Sessions'),
-                  Tab(text: 'Quiz Scores'),
-                ],
               ),
             ),
           ],
@@ -175,7 +197,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
       itemCount: _sessions.length,
       itemBuilder: (_, i) {
         final s = _sessions[i];
@@ -264,7 +286,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 110),
       itemCount: _quizScores.length,
       itemBuilder: (_, i) {
         final q = _quizScores[i];
