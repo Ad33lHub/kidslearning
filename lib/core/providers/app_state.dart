@@ -28,7 +28,8 @@ class AppState extends ChangeNotifier {
     if (result != null) {
       _parentId = result.parent.id;
       _parentEmail = result.parent.email;
-      await _session.saveParent(id: result.parent.id, email: result.parent.email);
+      await _session.saveParent(
+          id: result.parent.id, email: result.parent.email);
     } else {
       _parentId = await _session.parentId;
       _parentEmail = await _session.parentEmail;

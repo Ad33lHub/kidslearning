@@ -9,8 +9,9 @@ import 'package:kids/VideoLearning/Number%20video.dart';
 import 'package:kids/VideoLearning/ShapeVideo.dart';
 import 'package:kids/VideoLearning/VegitableVideo.dart';
 import 'package:kids/VideoLearning/colorvideo.dart';
+import 'package:kids/core/theme/app_colors.dart';
 
-class VideoLearning extends StatefulWidget{
+class VideoLearning extends StatefulWidget {
   const VideoLearning({super.key});
 
   @override
@@ -18,295 +19,281 @@ class VideoLearning extends StatefulWidget{
 }
 
 class _VideoLearningState extends State<VideoLearning> {
+  static const _items = [
+    _VideoItem(
+      label: 'ABC Video',
+      image: 'assets/images/Alphabet.png',
+      emoji: '🔤',
+      gradient: AppColors.gradientAlphabet,
+    ),
+    _VideoItem(
+      label: 'Number Video',
+      image: 'assets/images/Numbers.png',
+      emoji: '🔢',
+      gradient: AppColors.gradientNumbers,
+    ),
+    _VideoItem(
+      label: 'Color Video',
+      image: 'assets/images/Color.png',
+      emoji: '🎨',
+      gradient: AppColors.gradientColors,
+    ),
+    _VideoItem(
+      label: 'Shape Video',
+      image: 'assets/images/Shapes.png',
+      emoji: '🔷',
+      gradient: AppColors.gradientShapes,
+    ),
+    _VideoItem(
+      label: 'Animal Video',
+      image: 'assets/images/Animals.png',
+      emoji: '🦁',
+      gradient: AppColors.gradientAnimals,
+    ),
+    _VideoItem(
+      label: 'Bird Video',
+      image: 'assets/images/Birds.png',
+      emoji: '🦜',
+      gradient: AppColors.gradientBirds,
+    ),
+    _VideoItem(
+      label: 'Flower Video',
+      image: 'assets/images/Flowers.png',
+      emoji: '🌸',
+      gradient: AppColors.gradientFlowers,
+    ),
+    _VideoItem(
+      label: 'Fruit Video',
+      image: 'assets/images/Fruit.png',
+      emoji: '🍎',
+      gradient: AppColors.gradientFruits,
+    ),
+    _VideoItem(
+      label: 'Month Video',
+      image: 'assets/images/Month.png',
+      emoji: '📅',
+      gradient: AppColors.gradientMonths,
+    ),
+    _VideoItem(
+      label: 'Vegetable Video',
+      image: 'assets/images/Vegitable.png',
+      emoji: '🥦',
+      gradient: AppColors.gradientVegetables,
+    ),
+  ];
+
+  void _navigate(int i) {
+    const destinations = [
+      ABCVideo.new,
+      NumberVideo.new,
+      ColorVideo.new,
+      ShapeVideo.new,
+      AnimalVideo.new,
+      BirdVideo.new,
+      FlowerVideo.new,
+      FruitVideo.new,
+      MonthVideo.new,
+      VegitableVideo.new,
+    ];
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => destinations[i]()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
-        backgroundColor: const Color(0xFFFEF7F0),
-        title: const Center(child: Text('Video Learning',style: TextStyle(color: Color(0xFF000000),fontFamily: "arlrdbd"),)),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: GridView.count(
-                padding: const EdgeInsets.all(35),
-                mainAxisSpacing: 15,
-                crossAxisSpacing: 20,
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          _VideoAppBar(),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                primary: false,
-                children: [
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const ABCVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Alphabet.png',height: 90,),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('ABC Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>const NumberVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Numbers.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Number Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                   ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const ColorVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Color.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Color Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                        ),
-                      ),
-                   ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const ShapeVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Shapes.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Shape Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const AnimalVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Animals.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Animal Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                   ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const BirdVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Birds.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Bird Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const FlowerVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Flowers.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Flower Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const FruitVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Fruit.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Fruit Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const MonthVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Month.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Month Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                    ),
-                  ),
-                  InkWell(
-                    splashColor: Colors.orange[100],
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const VegitableVideo()));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.orange[50],
-                      ),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/Vegitable.png',height: 90),
-                            Container(
-                                height: 45,
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.orange[100]
-                                ),
-                                child: const Center(child: Text('Vegetable Video',style: TextStyle(color: Colors.black,fontFamily: "arlrdbd",fontSize: 18),))),                          ]
-                       ),
-                     ),
-                   )
-                 ]
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 0.92,
               ),
-           ),
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _VideoCard(
+                  item: _items[i],
+                  onTap: () => _navigate(i),
+                ),
+                childCount: _items.length,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
+class _VideoAppBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      expandedHeight: 120,
+      floating: false,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: const Text(
+          'Video Learning',
+          style: TextStyle(
+            fontFamily: 'arlrdbd',
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+        background: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: AppColors.gradientVideo,
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -20,
+                right: -20,
+                child: Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.12),
+                  ),
+                ),
+              ),
+              const Positioned(
+                bottom: 16,
+                left: 20,
+                child: Text('🎬', style: TextStyle(fontSize: 36)),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: const Color(0xFFF43F5E),
+      iconTheme: const IconThemeData(color: Colors.white),
+    );
+  }
+}
 
+class _VideoCard extends StatelessWidget {
+  final _VideoItem item;
+  final VoidCallback onTap;
 
+  const _VideoCard({required this.item, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: item.gradient,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: item.gradient.last.withOpacity(0.42),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -20,
+              right: -20,
+              child: Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.12),
+                ),
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.22),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(
+                        item.image,
+                        height: 52,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          size: 16,
+                          color: Color(0xFFF43F5E),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  item.label,
+                  style: const TextStyle(
+                    fontFamily: 'arlrdbd',
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.emoji,
+                  style: const TextStyle(fontSize: 18),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoItem {
+  final String label;
+  final String image;
+  final String emoji;
+  final List<Color> gradient;
+
+  const _VideoItem({
+    required this.label,
+    required this.image,
+    required this.emoji,
+    required this.gradient,
+  });
+}

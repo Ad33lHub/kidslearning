@@ -34,7 +34,8 @@
       "Read(//c/Windows/System32/**)",
       "Bash(tasklist)",
       "Bash(git -C \"D:/kids-app/kids\" status)",
-      "Bash(git -C \"D:/kids-app/kids\" remote -v)"
+      "Bash(git -C \"D:/kids-app/kids\" remote -v)",
+      "Bash(dir \"E:\\\\projects\\\\kid-learning-app\\\\kidlearning-1.0\\\\kidslearning\\\\assets\\\\images\")"
     ]
   },
   "_comment": "Personal overrides — gitignored. Never commit this file."

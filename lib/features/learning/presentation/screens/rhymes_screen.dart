@@ -140,9 +140,17 @@ class _RhymesScreenState extends State<RhymesScreen> {
   }
 
   Future<void> _initTts() async {
+    await _tts.awaitSpeakCompletion(true);
     await _tts.setLanguage('en-US');
     await _tts.setSpeechRate(0.45);
     await _tts.setPitch(1.2);
+  }
+
+  Future<String> _resolveLanguage() async {
+    if (!_isUrdu) return 'en-US';
+    final indianEnglishOk = await _tts.isLanguageAvailable('en-IN');
+    if (indianEnglishOk == true) return 'en-IN';
+    return 'en-US';
   }
 
   @override
@@ -154,13 +162,15 @@ class _RhymesScreenState extends State<RhymesScreen> {
   Future<void> _play() async {
     if (_playing) {
       await _tts.stop();
-      setState(() => _playing = false);
+      if (mounted) setState(() => _playing = false);
       return;
     }
-    setState(() => _playing = true);
     final rhyme = _rhymes[_rhymeIndex];
     final textToSpeak = rhyme.ttsText ?? rhyme.text;
-    await _tts.setLanguage(_isUrdu ? 'hi-IN' : 'en-US');
+    final lang = await _resolveLanguage();
+    await _tts.setLanguage(lang);
+    await _tts.setSpeechRate(_isUrdu ? 0.40 : 0.45);
+    setState(() => _playing = true);
     await _tts.speak(textToSpeak);
     if (mounted) setState(() => _playing = false);
   }
@@ -172,7 +182,7 @@ class _RhymesScreenState extends State<RhymesScreen> {
       _rhymeIndex = 0;
       _playing = false;
     });
-    await _tts.setLanguage(_isUrdu ? 'hi-IN' : 'en-US');
+    await _tts.setLanguage(await _resolveLanguage());
   }
 
   @override

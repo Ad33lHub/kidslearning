@@ -1,5 +1,6 @@
 import '../db/app_database.dart';
 import '../db/badges_repository.dart';
+import '../db/learning_sessions_repository.dart';
 import '../db/module_progress_repository.dart';
 import '../db/quiz_scores_repository.dart';
 import '../db/rewards_repository.dart';
@@ -34,12 +35,19 @@ class QuizCompletionService {
     required String category,
     required int score,
     required int total,
+    /// Optional: if the caller already opened a learning session, pass its id
+    /// so it gets closed here; otherwise a new one-off session is recorded.
+    int? openSessionId,
+    DateTime? sessionStart,
   }) async {
     final db = await AppDatabase.instance.database;
+
+    // Always persist the quiz score, now with child_id
     await QuizScoresRepository(db).record(
       category: category,
       score: score,
       total: total,
+      childId: childId,
     );
 
     if (childId == null) {
@@ -52,6 +60,24 @@ class QuizCompletionService {
         streak: StreakSnapshot.empty,
         newBadges: const [],
       );
+    }
+
+    // Close or record the learning session
+    final sessRepo = LearningSessionsRepository(db);
+    if (openSessionId != null && sessionStart != null) {
+      final secs =
+          DateTime.now().difference(sessionStart).inSeconds.clamp(1, 7200);
+      await sessRepo.endSession(
+        sessionId: openSessionId,
+        durationSeconds: secs,
+      );
+    } else {
+      // Record a single-entry session of ~1 min so the module shows in history
+      final sid = await sessRepo.startSession(
+        childId: childId,
+        module: category,
+      );
+      await sessRepo.endSession(sessionId: sid, durationSeconds: 60);
     }
 
     final stars = _starsFor(score: score, total: total);
@@ -114,22 +140,14 @@ class QuizCompletionService {
       if (wasNew) newlyAwarded.add(key);
     }
 
-    final allHistory = await scores.history(limit: 1000);
-    if (allHistory.isNotEmpty) {
-      await tryAward(BadgeCatalog.firstQuiz);
-    }
-    if (score == total && total > 0) {
-      await tryAward(BadgeCatalog.perfectScore);
-    }
-    if (allHistory.length >= 5) {
-      await tryAward(BadgeCatalog.fiveQuizzes);
-    }
-    if (streakCurrent >= 3) {
-      await tryAward(BadgeCatalog.streak3);
-    }
-    if (streakCurrent >= 7) {
-      await tryAward(BadgeCatalog.streak7);
-    }
+    // Use per-child count so badges are per-child, not global
+    final childCount = await scores.countForChild(childId);
+    if (childCount >= 1) await tryAward(BadgeCatalog.firstQuiz);
+    if (score == total && total > 0) await tryAward(BadgeCatalog.perfectScore);
+    if (childCount >= 5) await tryAward(BadgeCatalog.fiveQuizzes);
+    if (streakCurrent >= 3) await tryAward(BadgeCatalog.streak3);
+    if (streakCurrent >= 7) await tryAward(BadgeCatalog.streak7);
+
     final attempted = await progress.attemptedCategoriesCount(childId);
     if (attempted >= ModuleProgressRepository.allModules.length) {
       await tryAward(BadgeCatalog.allCategoriesTried);

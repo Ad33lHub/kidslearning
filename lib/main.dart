@@ -53,8 +53,24 @@ class MyApp extends StatelessWidget {
         ],
       ),
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        primarySwatch: Colors.red,
+        scaffoldBackgroundColor: const Color(0xFFF5F3FF),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6D28D9),
+          primary: const Color(0xFF6D28D9),
+          secondary: const Color(0xFFF43F5E),
+          background: const Color(0xFFF5F3FF),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+            fontFamily: 'arlrdbd',
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        fontFamily: 'arlrdbd',
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const AppEntryScreen(),
@@ -87,8 +103,23 @@ class _AppEntryScreenState extends State<AppEntryScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFFEF7F0),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFFF19335))),
+        backgroundColor: Color(0xFF4C1D95),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '🌟',
+                style: TextStyle(fontSize: 64),
+              ),
+              SizedBox(height: 24),
+              CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 3,
+              ),
+            ],
+          ),
+        ),
       );
     }
 

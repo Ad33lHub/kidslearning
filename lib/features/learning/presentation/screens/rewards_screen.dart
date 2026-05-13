@@ -4,6 +4,7 @@ import 'package:kids/core/db/badges_repository.dart';
 import 'package:kids/core/db/rewards_repository.dart';
 import 'package:kids/core/db/streaks_repository.dart';
 import 'package:kids/core/providers/app_state.dart';
+import 'package:kids/core/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class RewardsScreen extends StatefulWidget {
@@ -47,42 +48,110 @@ class _RewardsScreenState extends State<RewardsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFEF7F0),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFEF7F0),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          'My Rewards',
-          style: TextStyle(fontFamily: 'arlrdbd', color: Colors.black),
-        ),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: _load,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 140,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text(
+                'My Rewards',
+                style: TextStyle(
+                  fontFamily: 'arlrdbd',
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: AppColors.gradientRewards,
+                  ),
+                ),
+                child: Stack(
                   children: [
-                    _statRow(),
-                    const SizedBox(height: 16),
-                    _streakCard(),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Badges',
-                      style: TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
+                    Positioned(
+                      top: -30,
+                      right: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.12),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    _badgesGrid(),
+                    Positioned(
+                      bottom: -10,
+                      left: 30,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.08),
+                        ),
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 20,
+                      right: 24,
+                      child: Text('🏆', style: TextStyle(fontSize: 44)),
+                    ),
                   ],
                 ),
               ),
             ),
+            backgroundColor: const Color(0xFFF59E0B),
+            iconTheme: const IconThemeData(color: Colors.white),
+          ),
+          if (_loading)
+            const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else
+            SliverToBoxAdapter(
+              child: RefreshIndicator(
+                onRefresh: _load,
+                color: AppColors.primary,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _statRow(),
+                      const SizedBox(height: 14),
+                      _streakCard(),
+                      const SizedBox(height: 20),
+                      _sectionTitle('Badges Earned'),
+                      const SizedBox(height: 10),
+                      _badgesGrid(),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
+
+  Widget _sectionTitle(String text) => Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'arlrdbd',
+          fontSize: 20,
+          color: AppColors.textPrimary,
+        ),
+      );
 
   Widget _statRow() => Row(
         children: [
@@ -91,7 +160,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
               '⭐',
               '${_rewards.stars}',
               'Stars',
-              const Color(0xFFFEF9E4),
+              AppColors.gradientRewards,
             ),
           ),
           const SizedBox(width: 12),
@@ -100,33 +169,53 @@ class _RewardsScreenState extends State<RewardsScreen> {
               '🪙',
               '${_rewards.coins}',
               'Coins',
-              const Color(0xFFFFF9F4),
+              AppColors.gradientActivities,
             ),
           ),
         ],
       );
 
-  Widget _statCard(String icon, String value, String label, Color bg) =>
+  Widget _statCard(
+    String icon,
+    String value,
+    String label,
+    List<Color> gradient,
+  ) =>
       Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradient,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: gradient.last.withOpacity(0.35),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
           children: [
-            Text(icon, style: const TextStyle(fontSize: 40)),
-            const SizedBox(height: 4),
+            Text(icon, style: const TextStyle(fontSize: 42)),
+            const SizedBox(height: 6),
             Text(
               value,
-              style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 24),
+              style: const TextStyle(
+                fontFamily: 'arlrdbd',
+                fontSize: 26,
+                color: Colors.white,
+              ),
             ),
             Text(
               label,
               style: const TextStyle(
                 fontFamily: 'arlrdbd',
                 fontSize: 14,
-                color: Colors.black54,
+                color: Colors.white70,
               ),
             ),
           ],
@@ -134,27 +223,50 @@ class _RewardsScreenState extends State<RewardsScreen> {
       );
 
   Widget _streakCard() => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFFEBE8FD),
-          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: AppColors.headerGradient,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.30),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Row(
           children: [
-            const Text('🔥', style: TextStyle(fontSize: 40)),
-            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.20),
+                shape: BoxShape.circle,
+              ),
+              child: const Text('🔥', style: TextStyle(fontSize: 34)),
+            ),
+            const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${_streak.current}-Day Streak',
-                  style: const TextStyle(fontFamily: 'arlrdbd', fontSize: 18),
-                ),
-                Text(
-                  'Best: ${_streak.longest} days',
+                  '${_streak.current}-Day Streak!',
                   style: const TextStyle(
                     fontFamily: 'arlrdbd',
-                    color: Colors.black54,
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Best: ${_streak.longest} days 🏅',
+                  style: const TextStyle(
+                    fontFamily: 'arlrdbd',
+                    fontSize: 14,
+                    color: Colors.white70,
                   ),
                 ),
               ],
@@ -178,17 +290,33 @@ class _RewardsScreenState extends State<RewardsScreen> {
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: isEarned ? const Color(0xFFE4F2E6) : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(12),
+            gradient: isEarned
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: AppColors.gradientAnimals,
+                  )
+                : null,
+            color: isEarned ? null : const Color(0xFFE5E7EB),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isEarned
+                ? [
+                    BoxShadow(
+                      color: AppColors.gradientAnimals.last.withOpacity(0.30),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Opacity(
-                opacity: isEarned ? 1 : 0.3,
+                opacity: isEarned ? 1 : 0.30,
                 child: Text(
                   meta['emoji'] ?? '🏅',
-                  style: const TextStyle(fontSize: 38),
+                  style: const TextStyle(fontSize: 36),
                 ),
               ),
               const SizedBox(height: 4),
@@ -198,7 +326,7 @@ class _RewardsScreenState extends State<RewardsScreen> {
                 style: TextStyle(
                   fontFamily: 'arlrdbd',
                   fontSize: 11,
-                  color: isEarned ? Colors.black : Colors.black45,
+                  color: isEarned ? Colors.white : Colors.grey.shade500,
                 ),
               ),
             ],

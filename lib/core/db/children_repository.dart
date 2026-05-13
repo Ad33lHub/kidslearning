@@ -116,4 +116,27 @@ class ChildrenRepository {
     );
     return count > 0;
   }
+
+  /// Erases all learning data for a child without removing the profile.
+  Future<void> clearData(int childId) async {
+    const tablesWithChildId = [
+      AppDatabase.quizScoresTable,
+      AppDatabase.moduleProgressTable,
+      AppDatabase.learningSessionsTable,
+      AppDatabase.rewardsTable,
+      AppDatabase.badgesTable,
+      AppDatabase.streaksTable,
+      AppDatabase.dailyUsageTable,
+      AppDatabase.screenTimeLimitsTable,
+    ];
+    for (final table in tablesWithChildId) {
+      await _db.delete(table, where: 'child_id = ?', whereArgs: [childId]);
+    }
+  }
+
+  /// Deletes the child profile AND all associated learning data.
+  Future<void> deleteWithData(int childId) async {
+    await clearData(childId);
+    await delete(childId);
+  }
 }

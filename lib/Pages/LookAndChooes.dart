@@ -11,17 +11,23 @@ import 'package:kids/Quiz/ShapeQuiz.dart';
 import 'package:kids/Quiz/VegitableQuiz.dart';
 import 'package:kids/core/providers/app_state.dart';
 import 'package:kids/core/services/unlock_service.dart';
+import 'package:kids/core/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 
 class _QuizCategoryItem {
   final String moduleKey;
   final String label;
   final String image;
+  final String emoji;
+  final List<Color> gradient;
   final WidgetBuilder builder;
+
   const _QuizCategoryItem({
     required this.moduleKey,
     required this.label,
     required this.image,
+    required this.emoji,
+    required this.gradient,
     required this.builder,
   });
 }
@@ -41,62 +47,82 @@ class _LookAndChooesState extends State<LookAndChooes> {
   static final _items = <_QuizCategoryItem>[
     _QuizCategoryItem(
       moduleKey: 'alphabet',
-      label: 'ABC Songs',
+      label: 'ABC Quiz',
       image: 'assets/images/Alphabet.png',
+      emoji: '🔤',
+      gradient: AppColors.gradientAlphabet,
       builder: (_) => const ABCQuiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'numbers',
-      label: 'Number Songs',
+      label: 'Number Quiz',
       image: 'assets/images/Numbers.png',
+      emoji: '🔢',
+      gradient: AppColors.gradientNumbers,
       builder: (_) => const Numberquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'colors',
-      label: 'Color Songs',
+      label: 'Color Quiz',
       image: 'assets/images/Color.png',
+      emoji: '🎨',
+      gradient: AppColors.gradientColors,
       builder: (_) => const Colorquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'shapes',
-      label: 'Shape Songs',
+      label: 'Shape Quiz',
       image: 'assets/images/Shapes.png',
+      emoji: '🔷',
+      gradient: AppColors.gradientShapes,
       builder: (_) => const Shapequiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'animals',
-      label: 'Animal Songs',
+      label: 'Animal Quiz',
       image: 'assets/images/Animals.png',
+      emoji: '🦁',
+      gradient: AppColors.gradientAnimals,
       builder: (_) => const AnimalQuiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'birds',
-      label: 'Bird Songs',
+      label: 'Bird Quiz',
       image: 'assets/images/Birds.png',
+      emoji: '🦜',
+      gradient: AppColors.gradientBirds,
       builder: (_) => const Birdquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'flowers',
-      label: 'Flower Songs',
+      label: 'Flower Quiz',
       image: 'assets/images/Flowers.png',
+      emoji: '🌸',
+      gradient: AppColors.gradientFlowers,
       builder: (_) => const Flowerquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'fruits',
-      label: 'Fruit Songs',
+      label: 'Fruit Quiz',
       image: 'assets/images/Fruit.png',
+      emoji: '🍎',
+      gradient: AppColors.gradientFruits,
       builder: (_) => const Fruitquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'months',
-      label: 'Month Songs',
+      label: 'Month Quiz',
       image: 'assets/images/Month.png',
+      emoji: '📅',
+      gradient: AppColors.gradientMonths,
       builder: (_) => const Monthquiz(),
     ),
     _QuizCategoryItem(
       moduleKey: 'vegetables',
-      label: 'Vegetable Songs',
+      label: 'Vegetable Quiz',
       image: 'assets/images/Vegitable.png',
+      emoji: '🥦',
+      gradient: AppColors.gradientVegetables,
       builder: (_) => const Vegitablequiz(),
     ),
   ];
@@ -127,9 +153,14 @@ class _LookAndChooesState extends State<LookAndChooes> {
       final prereq = UnlockService.instance.prerequisiteFor(item.moduleKey);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          behavior: SnackBarBehavior.floating,
           content: Text(
-            'Finish "$prereq" first to unlock this!',
-            style: const TextStyle(fontFamily: 'arlrdbd'),
+            'Finish "$prereq" first to unlock this! 🔒',
+            style: const TextStyle(fontFamily: 'arlrdbd', color: Colors.white),
           ),
         ),
       );
@@ -142,81 +173,184 @@ class _LookAndChooesState extends State<LookAndChooes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: const Color(0xFFFEF7F0),
-        elevation: 0,
-        title: const Center(
-          child: Text(
-            'Look And Chooes',
-            style: TextStyle(color: Colors.black, fontFamily: 'arlrdbd'),
-          ),
-        ),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : GridView.count(
-              padding: const EdgeInsets.all(35),
-              mainAxisSpacing: 15,
-              crossAxisSpacing: 20,
-              crossAxisCount: 2,
-              children: _items.map(_buildTile).toList(),
-            ),
-    );
-  }
-
-  Widget _buildTile(_QuizCategoryItem item) {
-    final isUnlocked = _unlocked.contains(item.moduleKey);
-    return InkWell(
-      onTap: () => _onTapItem(item),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              color: Colors.orange[50],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Opacity(
-                  opacity: isUnlocked ? 1 : 0.4,
-                  child: Image.asset(item.image, height: 90),
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text(
+                'Look And Choose',
+                style: TextStyle(
+                  fontFamily: 'arlrdbd',
+                  fontSize: 18,
+                  color: Colors.white,
                 ),
-                Container(
-                  height: 45,
-                  width: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.orange[100],
+              ),
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: AppColors.gradientQuiz,
                   ),
-                  child: Center(
-                    child: Text(
-                      item.label,
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontFamily: 'arlrdbd',
-                        fontSize: 18,
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -20,
+                      right: -20,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.12),
+                        ),
                       ),
                     ),
-                  ),
+                    const Positioned(
+                      bottom: 16,
+                      left: 20,
+                      child: Text('🧠', style: TextStyle(fontSize: 36)),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
+            backgroundColor: const Color(0xFF0EA5E9),
+            iconTheme: const IconThemeData(color: Colors.white),
           ),
-          if (!isUnlocked)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(10),
+          if (_loading)
+            const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 0.92,
                 ),
-                child: const Center(
-                  child: Icon(Icons.lock, color: Colors.white, size: 48),
+                delegate: SliverChildBuilderDelegate(
+                  (_, i) => _QuizCard(
+                    item: _items[i],
+                    isUnlocked: _unlocked.contains(_items[i].moduleKey),
+                    onTap: () => _onTapItem(_items[i]),
+                  ),
+                  childCount: _items.length,
                 ),
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _QuizCard extends StatelessWidget {
+  final _QuizCategoryItem item;
+  final bool isUnlocked;
+  final VoidCallback onTap;
+
+  const _QuizCard({
+    required this.item,
+    required this.isUnlocked,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Opacity(
+        opacity: isUnlocked ? 1.0 : 0.65,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: item.gradient,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: item.gradient.last.withOpacity(0.42),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                top: -20,
+                right: -20,
+                child: Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.12),
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.22),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Image.asset(
+                      item.image,
+                      height: 52,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    item.label,
+                    style: const TextStyle(
+                      fontFamily: 'arlrdbd',
+                      fontSize: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    item.emoji,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+              if (!isUnlocked)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.30),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.lock_rounded,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
